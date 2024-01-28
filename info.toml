@@ -1,0 +1,9 @@
+[meta]
+name = "Editor Route"
+author = "Wambo"
+category = "Map Editor"
+version = "0.9 Beta"
+siteid = 489
+
+[script]
+dependencies = [ "Camera" ]
