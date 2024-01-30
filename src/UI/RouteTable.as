@@ -69,7 +69,7 @@ namespace EditorRouteUI
 						RouteContainer::Table::SortWithSortSpecs();
 						sortSpecs.Dirty = false;
 					}
-
+					
 					// ---------------------------------------------------------------
 					// Clipped List
 					UI::ListClipper clipper(RouteContainer::Routes.Length);
@@ -78,6 +78,7 @@ namespace EditorRouteUI
 						for (int32 row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
 						{     
 							const uint32 i = RouteContainer::Table::OrderedRouteIndices[row]; 
+							
 							UI::PushID("RecordedRoutes" + i);
 
 							UI::TableNextRow();

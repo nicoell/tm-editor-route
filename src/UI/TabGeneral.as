@@ -16,6 +16,7 @@ namespace EditorRouteUI
 			void OnSelect() { return; }
 
 			RouteSpectrum::ESpectrumType GetSpectrum() const { return RouteSpectrum::ESpectrumType::None; }
+			vec4 GetSpectrumColor() const { return UI::GetStyleColor(UI::Col::Text); }
 
 			string GetActionName() const { return ""; }
 			void RunAction() const { return; }
@@ -59,6 +60,7 @@ namespace EditorRouteUI
 				return Text::Format("%.2f km/h", GetSample().Velocity.Length() * 3.6);
 			}
 			RouteSpectrum::ESpectrumType GetSpectrum() const override { return RouteSpectrum::ESpectrumType::Speed; }
+			vec4 GetSpectrumColor() const override { return RouteSpectrum::CalcSpectrumColor_Speed(Ctx::Route, GetSample()); }
 			string GetActionName() const override { return Strings::GotoTime; }
 			void RunAction() const override 
 			{
@@ -75,6 +77,7 @@ namespace EditorRouteUI
 				return Text::Format("%.2f km/h", Ctx::Route.CurrentSample.Velocity.Length() * 3.6);
 			}
 			RouteSpectrum::ESpectrumType GetSpectrum() const override { return RouteSpectrum::ESpectrumType::Speed; }
+			vec4 GetSpectrumColor() const override { return RouteSpectrum::CalcSpectrumColor_Speed(Ctx::Route, Ctx::Route.CurrentSample); }
 		}
 		// ---------------------------------------------------------------
 		// "Altitude"
@@ -87,6 +90,7 @@ namespace EditorRouteUI
 				return Text::Format("%.2f m", GetSample().Position.y);
 			}
 			RouteSpectrum::ESpectrumType GetSpectrum() const override { return RouteSpectrum::ESpectrumType::Altitude; }
+			vec4 GetSpectrumColor() const override { return RouteSpectrum::CalcSpectrumColor_Altitude(Ctx::Route, GetSample()); }
 			string GetActionName() const override { return Strings::GotoTime; }
 			void RunAction() const override 
 			{
@@ -104,6 +108,7 @@ namespace EditorRouteUI
 				return Text::Format("%.2f m", Ctx::Route.CurrentSample.Position.y);
 			}
 			RouteSpectrum::ESpectrumType GetSpectrum() const override { return RouteSpectrum::ESpectrumType::Altitude; }
+			vec4 GetSpectrumColor() const override { return RouteSpectrum::CalcSpectrumColor_Altitude(Ctx::Route, Ctx::Route.CurrentSample); }
 		}
 		// ---------------------------------------------------------------
 		// Position
@@ -122,6 +127,7 @@ namespace EditorRouteUI
 			GearItemBase() { EventType = Events::EventType::GearEvent; }
 			Events::GearEvent@ GetGearEvent() const { return cast<Events::GearEvent>(GetEvent()); }
 			RouteSpectrum::ESpectrumType GetSpectrum() const override { return RouteSpectrum::ESpectrumType::Gear; }
+			vec4 GetSpectrumColor() const override { return GetGearEvent() !is null ? RouteSpectrum::CalcSpectrumColor_Gear(GetGearEvent()) : ItemBase::GetSpectrumColor(); }
 			string GetActionName() const override { return Strings::GotoTime; }
 			void RunAction() const override 
 			{
@@ -236,6 +242,7 @@ namespace EditorRouteUI
 									Ctx::SpectrumType = item.GetSpectrum();
 								}
 							}
+
 							if (UI::IsItemHovered() && item.GetTooltip().Length != 0)
 							{
 								UI::BeginTooltip();
@@ -244,7 +251,10 @@ namespace EditorRouteUI
 							}
 
 							UI::TableNextColumn();
+
+							UI::PushStyleColor(UI::Col::Text, item.GetSpectrumColor());
 							UI::Text(item.GetValue());
+							UI::PopStyleColor();
 
 							UI::TableNextColumn();
 							UI::PushStyleVar(UI::StyleVar::SelectableTextAlign, vec2(0.5, 0.5));

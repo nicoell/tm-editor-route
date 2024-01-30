@@ -28,10 +28,26 @@ namespace RouteSpectrum
 		None = NumTypes
 	};
 
+	enum ESpectrumPalette
+	{
+		Rainbow = 0,
+		DesertSky,
+		Cream,
+		Phaser,
+		Variety,
+		Eighties,
+		Cactusflower,
+		Spectrum
+	};
+	
+	[Setting category="Display" name="Spectrum Palette"]
+	ESpectrumPalette RequestedPalette = ESpectrumPalette::Spectrum;
+
 	uint32 RequestedRouteIndex = 0;
 	ESpectrumType RequestedSpectrum = ESpectrumType::Default;
 	uint32 CurrentRouteIndex = NumericLimits::UINT32_MAX;
 	ESpectrumType CurrentSpectrum = ESpectrumType::NumTypes;
+	ESpectrumPalette CurrentPalette = RequestedPalette;
 
 	void ResetAll()
 	{
@@ -47,7 +63,7 @@ namespace RouteSpectrum
 
 	void ProcessRequest()
 	{
-		const bool bRequiresUpdate = CurrentRouteIndex != RequestedRouteIndex || CurrentSpectrum != RequestedSpectrum;
+		const bool bRequiresUpdate = CurrentRouteIndex != RequestedRouteIndex || CurrentSpectrum != RequestedSpectrum || CurrentPalette != RequestedPalette;
 		if (bRequiresUpdate)
 		{
 			startnew(ProcessRequestCoroutine);
@@ -63,6 +79,7 @@ namespace RouteSpectrum
 		{
 			CurrentRouteIndex = RequestedRouteIndex;
 			CurrentSpectrum = RequestedSpectrum;
+			CurrentPalette = RequestedPalette;
 
 			if (SpectrumData is null || SpectrumData.Header.GetWidth() != SpectrumSize) 
 			{
@@ -94,42 +111,74 @@ namespace RouteSpectrum
 		RequestedSpectrum = spectrum;
 	}
 
-	void CreateSpectrum_Speed(Route::FRoute@ route)
+	// ---------------------------------------------------------------
+	// Spectrum Colors
+	// ---------------------------------------------------------------
+
+	// Speed
+	// ---------------------------------------------------------------
+	vec4 CalcSpectrumColor_Speed(Route::FRoute@ route, Route::FSampleData@ sample)
 	{
 		const float maxVal = route.SampleDataArray[route.MaxMagnitudeIndex].Velocity.Length();
 		const float fac = maxVal != 0 ? 1. / maxVal : 1.;
+		const float v = sample.Velocity.Length() * fac;
+		return vec4(CosPalette::Col(v, CurrentPalette), 1);
+	}
+
+	void CreateSpectrum_Speed(Route::FRoute@ route)
+	{
+		float t;
+		Route::FSampleData@ sample = null;
 		for(int32 i = 0; i < SpectrumSize; i++)
 		{
-			float t = float(i) / SpectrumSize;
-			auto data = route.LerpSample(t);
-			const float v = data.Velocity.Length() * fac;
-			SpectrumData.Write32(RGBAColor(CosPalette::Col(v, CosPalette::Presets::Spectrum)));
+			t = float(i) / SpectrumSize;
+			@sample = route.LerpSample(t);
+			SpectrumData.Write32(RGBAColor(CalcSpectrumColor_Speed(route, sample)));
 		}
 	}
-	void CreateSpectrum_Altitude(Route::FRoute@ route)
+
+	// Altitude
+	// ---------------------------------------------------------------
+	vec4 CalcSpectrumColor_Altitude(Route::FRoute@ route, Route::FSampleData@ sample)
 	{
 		const float maxVal = route.SampleDataArray[route.MaxAltitudeIndex].Position.y;
 		const float fac = maxVal != 0 ? 1. / maxVal : 1.;
+		const float v = sample.Position.y * fac;
+		return vec4(CosPalette::Col(v, CurrentPalette), 1);
+	}
+
+	void CreateSpectrum_Altitude(Route::FRoute@ route)
+	{
+		float t;
+		Route::FSampleData@ sample;
 		for(int32 i = 0; i < SpectrumSize; i++)
 		{
-			float t = float(i) / SpectrumSize;
-			auto data = route.LerpSample(t);
-			const float v = data.Position.y * fac;
-			SpectrumData.Write32(RGBAColor(CosPalette::Col(v, CosPalette::Presets::Spectrum)));
+			t = float(i) / SpectrumSize;
+			@sample = route.LerpSample(t);
+			SpectrumData.Write32(RGBAColor(CalcSpectrumColor_Altitude(route, sample)));
 		}
 	}
+
+	// Gears
+	// ---------------------------------------------------------------
+	vec4 CalcSpectrumColor_Gear(Events::GearEvent@ gearEvent)
+	{
+		const int32 v = gearEvent is null ? 0 : gearEvent.Gear;
+		return vec4(CosPalette::Col(v, CurrentPalette, 0.2), 1); // 0.2 due to MaxGear 5
+	}
+
 	void CreateSpectrum_Gear(Route::FRoute@ route)
 	{
 		Events::FNearbyEventDesc nearbyDesc;
 		const int32 eventIdx = int32(Events::EventType::GearEvent);
-		const float fac = 1. / 5.; // MaxGear 5
+		float t;
+		Events::GearEvent@ gearEvent;
 		for(int32 i = 0; i < SpectrumSize; i++)
 		{
-			float t = float(i) / SpectrumSize;
+			t = float(i) / SpectrumSize;
 			route.FindNearbyEventDesc(t, eventIdx, nearbyDesc);
-			auto gear = cast<Events::GearEvent>(route.GetPreviousEvent(eventIdx, nearbyDesc));
-			const int32 v = gear is null ? 0 : gear.Gear;
-			SpectrumData.Write32(RGBAColor(CosPalette::Col(v, CosPalette::Presets::Spectrum, fac)));
+			@gearEvent = cast<Events::GearEvent>(route.GetPreviousEvent(eventIdx, nearbyDesc));
+			SpectrumData.Write32(RGBAColor(CalcSpectrumColor_Gear(gearEvent)));
 		}
 	}
 }

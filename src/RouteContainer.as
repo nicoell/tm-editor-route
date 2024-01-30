@@ -51,7 +51,23 @@ namespace RouteContainer
 			newRoute.StartTime = currentGameTime;
 			newRoute.ID = Routes.Length;
 			Routes.InsertLast(newRoute);
-			Table::RegisterRoute(newRoute.ID);
+		}
+	}
+
+	void FinalizeRoutes()
+	{
+		for (int32 i = 0; i < int32(Routes.Length); i++)
+		{
+			if (Routes[i].GetNumSamples() <= 1)
+			{
+				Routes.RemoveAt(i);
+				i--;
+			}
+			else
+			{
+				Routes[i].ID = i;
+				Table::RegisterRoute(i);
+			}
 		}
 	}
 

@@ -50,6 +50,7 @@ namespace GameState
 
 	void InitRuntime()
 	{
+		RouteContainer::FinalizeRoutes();
 		RouteContainer::CacheStats();
 		RouteTime::Init();
 		RouteRenderer::bDebug = true;

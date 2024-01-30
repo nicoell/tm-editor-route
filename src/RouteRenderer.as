@@ -168,9 +168,9 @@ namespace RouteRenderer
 		{
 			vec2 origin = vec2(pclip.x / pclip.w + 1, pclip.y / pclip.w + 1);
 			array<vec3> axes(3);
-			axes[0] = vec3(0, 0, 1) * Setting_GizmoScale;
+			axes[0] = vec3(1, 0, 0) * Setting_GizmoScale;
 			axes[1] = vec3(0, 1, 0) * Setting_GizmoScale;
-			axes[2] = vec3(1, 0, 0) * Setting_GizmoScale;
+			axes[2] = vec3(0, 0, 1) * Setting_GizmoScale;
 
 			array<vec4> cols(3);
 			cols[0] = vec4(1, 0, 0, 1);
