@@ -256,9 +256,7 @@ namespace EditorRouteUI
 			vec4 borderColor = bIsTimeLineSliderHovered || bIsTimeLineSliderActive ?  UI::GetStyleColor(UI::Col::SliderGrabActive) : UI::GetStyleColor(UI::Col::SliderGrab);
 			drawlist.AddRect(fullSpectrumRect, borderColor);
 
-			const double duration = RUtils::InMS(route.GetDuration());
-			float t = duration != 0 ? RUtils::InMS(route.CurrentSample.Time - route.GetMinTime()) / RUtils::InMS(route.GetDuration()) : 0.0;
-
+			float t = TimePercentage;
 			t = Math::Clamp(t, 0., 1.);
 
 			const vec4 sliderGrabColor = UI::GetStyleColor(UI::Col::SliderGrab);
