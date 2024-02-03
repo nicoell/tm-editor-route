@@ -19,10 +19,11 @@ namespace Route
 		uint32 ID;
 		int32 StartTime;
 
-		array<FSampleData> SampleDataArray;
+		array<Samples::FSampleData> SampleDataArray;
 		array<vec3> Positions; // Pulled out Positions for faster Line Rendering
 		array<bool> bIsDiscontinuousArray;
-		FSampleData CurrentSample; // Interpolated Sample at Current Time
+		int32 BestSampleIndex = 0;
+		Samples::FSampleData CurrentSample; // Interpolated Sample at Current Time
 		
 		array<array<Events::IEvent@>> Events;
 		array<Events::FNearbyEventDesc> NearbyEventDescs;
@@ -199,28 +200,42 @@ namespace Route
 		// Samples
 
 		uint32 GetNumSamples() const { return SampleDataArray.Length; }
-		FSampleData@ GetLastSampleData() { return SampleDataArray.IsEmpty() ? null : @SampleDataArray[SampleDataArray.Length - 1]; }
+		Samples::FSampleData@ GetLastSampleData() { return SampleDataArray.IsEmpty() ? null : @SampleDataArray[SampleDataArray.Length - 1]; }
 
 		void CacheInterpolatedSample(const int32 time)
 		{
-			CurrentSample = LerpSampleByTime(time);
+			CurrentSample = LerpSampleByTime(time, BestSampleIndex);
 		}
 
-		FSampleData LerpSampleByTime(const int32 time) const
+		Samples::FSampleData LerpSampleByTime(const int32 time) const
 		{
-			if (GetNumSamples() == 0) { return FSampleData(); }
+			if (GetNumSamples() == 0) { return Samples::FSampleData(); }
 			uint32 nextBestIdx; float ratio;
 			const uint32 bestIdx = BinarySearchSamplesByTime(time, nextBestIdx, ratio);
 
 			if (bestIdx != nextBestIdx)
 			{
-				return Lerp(SampleDataArray[bestIdx], SampleDataArray[nextBestIdx], ratio);
+				return Samples::Lerp(SampleDataArray[bestIdx], SampleDataArray[nextBestIdx], ratio);
+
+			}
+			return SampleDataArray[bestIdx];
+		}
+		Samples::FSampleData LerpSampleByTime(const int32 time, uint32 &out outBestIdx) const
+		{
+			if (GetNumSamples() == 0) { outBestIdx = 0; return Samples::FSampleData(); }
+			uint32 nextBestIdx; float ratio;
+			const uint32 bestIdx = BinarySearchSamplesByTime(time, nextBestIdx, ratio);
+			outBestIdx = bestIdx;
+
+			if (bestIdx != nextBestIdx)
+			{
+				return Samples::Lerp(SampleDataArray[bestIdx], SampleDataArray[nextBestIdx], ratio);
 
 			}
 			return SampleDataArray[bestIdx];
 		}
 
-		FSampleData LerpSample(const float t)
+		Samples::FSampleData LerpSample(const float t)
 		{
 			return LerpSampleByTime(RUtils::Lerp(GetMinTime(), GetMaxTime(), t));
 		}
@@ -274,7 +289,7 @@ namespace Route
 			float maxAltitude = NumericLimits::FLT_LOWEST;
 			for (uint32 i = 0; i < GetNumSamples() - 1; i++) 
 			{
-				const FSampleData@ sample = SampleDataArray[i];
+				const Samples::FSampleData@ sample = SampleDataArray[i];
 				const float magnitude = sample.Velocity.Length();
 				if (magnitude > maxMagnitude)
 				{

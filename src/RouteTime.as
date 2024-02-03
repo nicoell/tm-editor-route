@@ -36,6 +36,7 @@ namespace RouteTime
 	double GetCurrentDuration() { return GetCurrentMaxTime() - GetCurrentMinTime(); }
 	float GetTimePercentage(double inTime) { return RUtils::IsNearlyEqual(Duration, 0) ? 0 : (inTime - MinTime) / Duration; }
 	float GetTimePercentage() { return RUtils::IsNearlyEqual(Duration, 0) ? 0 : (Time - MinTime) / Duration; }
+	double GetTimeByPercentage(const float t) { return MinTime + t * Duration; }
 
 	bool IsTimeInRange(double timeInMs) { return RUtils::IsInRange(timeInMs, GetCurrentMinTime(), GetCurrentMaxTime()); }
 	bool IsTimeInRange(int timeInt) { return IsTimeInRange(RUtils::InMS(timeInt)); }
@@ -46,7 +47,6 @@ namespace RouteTime
 		{
 			Time += PlaybackSpeed * dt;
 		}
-		double tStart = Time;
 		double currentMinTime = GetCurrentMinTime();
 		double currentMaxTime = GetCurrentMaxTime();
 		double currentDuration = GetCurrentDuration();

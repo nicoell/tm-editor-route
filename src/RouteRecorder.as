@@ -23,7 +23,7 @@ namespace RouteRecorder
 
 		CSmScriptPlayer@ scriptPlayer = GameState::GetScriptPlayer();
 		{
-			Route::FSampleData newEntry;
+			Samples::FSampleData newEntry;
 			newEntry.Time = currentRaceTime;
 			newEntry.Velocity = scriptPlayer.Velocity;
 			newEntry.Position = scriptPlayer.Position;
@@ -31,6 +31,7 @@ namespace RouteRecorder
 				scriptPlayer.AimDirection.Normalized(),
 				scriptPlayer.UpDirection);
 			newEntry.bIsDiscontinuous = State::bRequestDiscontinuousEntry;
+			newEntry.AvgFrametime = GetAverageFrameTime();
 			
 			if (ShouldRecordEntry(newEntry, route.GetLastSampleData()))
 			{
@@ -65,23 +66,7 @@ namespace RouteRecorder
 		State::bRequestDiscontinuousEntry = false;
 	}
 
-	void AddDebugData(int32 numElements = 4000) 
-	{
-		RouteContainer::AdvanceRoute();
-		auto route = RouteContainer::GetCurrentRoute();
-		for(int32 i = 0; i < numElements; i++)
-		{
-			Route::FSampleData newEntry;
-			newEntry.Time = i;
-			newEntry.Position = vec3(0, 0, 0);
-			route.SampleDataArray.InsertLast(newEntry);
-			route.Positions.InsertLast(newEntry.Position);
-			route.bIsDiscontinuousArray.InsertLast(i % 8 == 0);
-		}
-		GameState::InitRuntime();
-	}
-
-	bool ShouldRecordEntry(Route::FSampleData new, Route::FSampleData@ prev)
+	bool ShouldRecordEntry(Samples::FSampleData new,Samples::FSampleData@ prev)
 	{
 		return prev is null || 
 			new.bIsDiscontinuous != prev.bIsDiscontinuous ||
@@ -109,5 +94,32 @@ namespace RouteRecorder
 		}
 		
 		return q.Normalized();
+	}
+
+	float[] FrameTimes (4);
+	int8 CurFrame;
+	float GetAverageFrameTime() { return 0.25 * (FrameTimes[0] + FrameTimes[1] + FrameTimes[2] + FrameTimes[3]); }
+	void RecordFrameTimes(float dt)
+	{
+		FrameTimes[CurFrame++] = dt;
+		CurFrame = CurFrame % 4;
+	}
+
+	// ---------------------------------------------------------------
+
+	void AddDebugData(int32 numElements = 4000) 
+	{
+		RouteContainer::AdvanceRoute();
+		auto route = RouteContainer::GetCurrentRoute();
+		for(int32 i = 0; i < numElements; i++)
+		{
+			Samples::FSampleData newEntry;
+			newEntry.Time = i;
+			newEntry.Position = vec3(0, 0, 0);
+			route.SampleDataArray.InsertLast(newEntry);
+			route.Positions.InsertLast(newEntry.Position);
+			route.bIsDiscontinuousArray.InsertLast(i % 8 == 0);
+		}
+		GameState::InitRuntime();
 	}
 }

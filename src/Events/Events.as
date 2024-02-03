@@ -121,9 +121,12 @@ namespace Events
 
 			vec2 offsetPos = vec2(screenPos.x, screenPos.y - radius - dotRadius);
 			bIsHovered = (RenderCtx::MouseCoords - offsetPos).LengthSquared() < (radius * radius);
+		
+			float alphaMod = /* bIsEventElapsed */ Time < RUtils::AsInt(RouteTime::Time) ? Setting_ElapsedEventOpacityModifier : 1.f;
+
 			nvg::StrokeWidth(bIsRouteSelected ? 1.5 : 1.);
-			nvg::StrokeColor(vec4(Color * 0.2, bIsRouteSelected ? 0.8 : 0.4));
-			nvg::FillColor(vec4(Color, bIsHovered ? 1. : .8));
+			nvg::StrokeColor(vec4(Color * 0.2, (bIsRouteSelected ? 0.8 : 0.4)) * alphaMod);
+			nvg::FillColor(vec4(Color, (bIsHovered ? 1. : .8) * alphaMod));
 
 			// ---------------------------------------------------------------
 			// Dot
@@ -141,7 +144,7 @@ namespace Events
 
 			// ---------------------------------------------------------------
 			// Event Text
-			nvg::FillColor(vec4(ContrastColor::Get(Color), bIsHovered ? 0.75 : 1.0));
+			nvg::FillColor(vec4(ContrastColor::Get(Color), (bIsHovered ? 0.75 : 1.0) * alphaMod));
 			nvg::BeginPath();
 			nvg::FontSize(16 * Setting_EventScale);
 			nvg::FontFace(Fonts::nvg(Fonts::Type::DroidSansBold));

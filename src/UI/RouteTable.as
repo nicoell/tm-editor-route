@@ -7,35 +7,42 @@ namespace EditorRouteUI
 	{
 		// ---------------------------------------------------------------
 		// Setup Style and calc var
-		const float paddingBetween = 8;
+		int32 sv = 0;
+		
+		float paddingBetween;
+		{
+			int32 _sv = 0;
+			_sv += PushStyleVar(UI::StyleVar::ItemSpacing, vec2(8., 0.));
+			paddingBetween = UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing).x;
+			PopStyleVar(_sv);
+		}
+
 		vec2 tableChildSize;
 		const vec2 contentRegion = UI::GetContentRegionAvail();
 		{
 			const float minListWidth = 120.;
 			const float maxListWidth = 180.;
 
-			tableChildSize.x = Math::Clamp(0.2 * contentRegion.x, minListWidth, maxListWidth) - (paddingBetween / 2);
+			tableChildSize.x = Math::Clamp(0.2 * contentRegion.x, minListWidth, maxListWidth);
 			tableChildSize.y = contentRegion.y;
 		}
 		vec2 detailsChildSize;
 		{
-			detailsChildSize.x = contentRegion.x - tableChildSize.x - (paddingBetween / 2);
+			detailsChildSize.x = contentRegion.x - tableChildSize.x - paddingBetween;
 			detailsChildSize.y = contentRegion.y;
 		}
-
-		// Only push now after activating, so child sizes were calculated with padding
-		UI::PushStyleVar(UI::StyleVar::WindowPadding, vec2(0., 0.));
 		{
+			int32 sc = 0;
 			// ---------------------------------------------------------------
 			// Route Selection Table
 			int32 windowFlags = UI::WindowFlags::NoScrollbar | UI::WindowFlags::NoScrollWithMouse;
-			UI::PushStyleColor(UI::Col::ChildBg, vec4(0., 0., 0., 64.)/255.);
+			sc += PushStyleColor(UI::Col::ChildBg, vec4(0., 0., 0., 64.)/255.);
 			if (UI::BeginChild("RecordedRoutesSelection", tableChildSize, false, windowFlags))
 			{
 				// ---------------------------------------------------------------
 				// Calc Sizes
 				vec2 buttonRowSize;
-				const float buttonHeight =  UI::GetTextLineHeightWithSpacing() + 2;
+				const float buttonHeight = UI::GetTextLineHeightWithSpacing();
 				{
 					const float numButtonRows = 1.;
 					buttonRowSize.x = tableChildSize.x - 1;
@@ -44,7 +51,7 @@ namespace EditorRouteUI
 				vec2 tableSize;
 				{
 					tableSize.x = tableChildSize.x - 1;
-					tableSize.y = tableChildSize.y - buttonRowSize.y - 1; // -1 to prevent border cutoff
+					tableSize.y = tableChildSize.y - buttonRowSize.y - UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing).y - 1; // -1 to prevent border cutoff
 				}
 
 				// ---------------------------------------------------------------
@@ -86,13 +93,14 @@ namespace EditorRouteUI
 
 							// ---------------------------------------------------------------
 							// Visibility Checbox
-							UI::PushStyleVar(UI::StyleVar::FramePadding, vec2(0, 0));
-							UI::PushStyleColor(UI::Col::FrameBg, vec4(89., 239., 134., 32.)/255.);
-							UI::PushStyleColor(UI::Col::FrameBgHovered, vec4(89., 239., 134., 64.)/255.);
-							UI::PushStyleColor(UI::Col::FrameBgActive, vec4(89., 239., 134., 96.)/255.);
+							int32 _sv = 0; int32 _sc = 0;
+							_sv += PushStyleVarForced(UI::StyleVar::FramePadding, vec2(0, 0));
+							_sc += PushStyleColor(UI::Col::FrameBg, vec4(89., 239., 134., 32.)/255.);
+							_sc += PushStyleColor(UI::Col::FrameBgHovered, vec4(89., 239., 134., 64.)/255.);
+							_sc += PushStyleColor(UI::Col::FrameBgActive, vec4(89., 239., 134., 96.)/255.);
 							RouteContainer::Table::VisibleRoutes[i] = UI::Checkbox("##IsVisible", RouteContainer::Table::VisibleRoutes[i]);
-							UI::PopStyleColor(3);
-							UI::PopStyleVar();
+							UI::PopStyleColor(_sc);
+							UI::PopStyleVar(_sv);
 
 							UI::TableNextColumn();
 
@@ -107,65 +115,83 @@ namespace EditorRouteUI
 
 					// ---------------------------------------------------------------
 					// Buttons to Show, Hide and Invert selections
+					{
+						// Reduce Spacing a bit
+						int32 _sv = 0;
+						_sv += PushStyleVarForced(UI::StyleVar::ItemSpacing, UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing) / 2.);
+						
+						const int32 numButtons = 3;
+						vec2 buttonSize = buttonRowSize;
+						{
+							buttonSize.x = buttonRowSize.x - UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing).x * (numButtons - 1);
+							buttonSize.x = buttonSize.x / numButtons;
+						}
 
-					if (UI::Button(Icons::Kenney::RadioChecked + "##All", vec2(buttonRowSize.x / 3., buttonHeight)))
-					{
-						for (uint32 row = 0; row < RouteContainer::Routes.Length; row++)
-						{     
-							RouteContainer::Table::VisibleRoutes[row] = true;
+						if (UI::Button(Icons::Kenney::RadioChecked + "##All", buttonSize))
+						{
+							for (uint32 row = 0; row < RouteContainer::Routes.Length; row++)
+							{     
+								RouteContainer::Table::VisibleRoutes[row] = true;
+							}
 						}
-					}
-					if (UI::IsItemHovered())
-					{
-						UI::BeginTooltip();
-						UI::Text("Show All");
-						UI::EndTooltip();
-					}
-					UI::SameLine();
-					if (UI::Button(Icons::Kenney::Radio + "##None", vec2(buttonRowSize.x / 3., buttonHeight)))
-					{
-						for (uint32 row = 0; row < RouteContainer::Routes.Length; row++)
-						{     
-							RouteContainer::Table::VisibleRoutes[row] = false;
+						if (UI::IsItemHovered())
+						{
+							UI::BeginTooltip();
+							UI::Text("Show All");
+							UI::EndTooltip();
 						}
-					}
-					if (UI::IsItemHovered())
-					{
-						UI::BeginTooltip();
-						UI::Text("Hide All");
-						UI::EndTooltip();
-					}
-					UI::SameLine();
-					if (UI::Button(Icons::Kenney::Adjust + "##Invert", vec2(buttonRowSize.x / 3., buttonHeight)))
-					{
-						for (uint32 row = 0; row < RouteContainer::Routes.Length; row++)
-						{     
-							RouteContainer::Table::VisibleRoutes[row] = !RouteContainer::Table::VisibleRoutes[row];
+						UI::SameLine();
+						if (UI::Button(Icons::Kenney::Radio + "##None", buttonSize))
+						{
+							for (uint32 row = 0; row < RouteContainer::Routes.Length; row++)
+							{     
+								RouteContainer::Table::VisibleRoutes[row] = false;
+							}
 						}
-					}
-					if (UI::IsItemHovered())
-					{
-						UI::BeginTooltip();
-						UI::Text("Invert");
-						UI::EndTooltip();
+						if (UI::IsItemHovered())
+						{
+							UI::BeginTooltip();
+							UI::Text("Hide All");
+							UI::EndTooltip();
+						}
+						UI::SameLine();
+						if (UI::Button(Icons::Kenney::Adjust + "##Invert", buttonSize))
+						{
+							for (uint32 row = 0; row < RouteContainer::Routes.Length; row++)
+							{     
+								RouteContainer::Table::VisibleRoutes[row] = !RouteContainer::Table::VisibleRoutes[row];
+							}
+						}
+						if (UI::IsItemHovered())
+						{
+							UI::BeginTooltip();
+							UI::Text("Invert");
+							UI::EndTooltip();
+						}
+
+						PopStyleVar(_sv);
 					}
 				}
 			}
 			UI::EndChild();
 			
-			UI::PopStyleColor();
+			PopStyleColor(sc);
 		}
 		// ---------------------------------------------------------------
 		// Spacing
-		UI::PushStyleVar(UI::StyleVar::ItemSpacing, vec2(paddingBetween, 0.));
-		UI::SameLine();
-		UI::PopStyleVar();
+		{
+			int32 _sv = 0;
+			_sv += PushStyleVarForced(UI::StyleVar::ItemSpacing, vec2(paddingBetween, 0.));
+			UI::SameLine();
+			PopStyleVar(_sv);
+		}
 
 		{
 			// ---------------------------------------------------------------
 			// Selected Route Details Panel
 			int32 windowFlags = UI::WindowFlags::NoScrollbar | UI::WindowFlags::NoScrollWithMouse;
-			UI::PushStyleColor(UI::Col::ChildBg, vec4(0., 0., 0., 64.)/255.);
+			int32 sc = 0;
+			sc += PushStyleColor(UI::Col::ChildBg, vec4(0., 0., 0., 64.)/255.);
 			if (UI::BeginChild("RecordedRoutesDetails", detailsChildSize, false, windowFlags))
 			{
 				// BeginTabBar doesn't return bool for whatever reason?
@@ -175,52 +201,11 @@ namespace EditorRouteUI
 					TabDisplay::Draw();
 					UI::EndTabBar();
 				}
-
-				// if (RouteContainer::Table::IsRouteSelected())
-				// {
-				//     const int32 i = RouteContainer::Table::SelectedRouteIndex;
-				//     auto@ route = RouteContainer::Routes[i];
-				//     {
-				//         auto@ sample = route.SampleDataArray[route.MaxMagnitudeIndex];
-				//         UI::Text("Max Speed: ");
-				//         UI::SameLine();
-				//         if (UI::Button("" + sample.Velocity.Length()))
-				//         {
-				//             RouteTime::SetTime(sample.Time);
-				//         }
-				//     }
-				//     {
-				//         auto@ sample = route.SampleDataArray[route.MaxAltitudeIndex];
-				//         UI::Text("Max Altitude: ");
-				//         UI::SameLine();
-				//         if (UI::Button("" + sample.Position.y))
-				//         {
-				//             RouteTime::SetTime(sample.Time);
-				//         }
-				//     }
-				//     UI::Text("NumCData " + route.GetNumSamples());
-				//     UI::Text("R MinTime " + route.GetMinTime() + " (" + RUtils::InMS(route.GetMinTime()) + " ms)");
-				//     UI::Text("R MaxTime " + route.GetMaxTime() + " (" + RUtils::InMS(route.GetMaxTime()) + " ms)");
-				//     UI::Text("S Time " + route.CurrentSample.Time + " (" + RUtils::InMS(route.CurrentSample.Time) + " ms)");
-				//     UI::Separator();
-				//     // for (uint32 ci = 0; ci < route.GetNumSamples(); ci++)
-				//     // {
-						
-				//     //     UI::Text(ci + " : " + route.SampleDataArray[ci].Time + " (" + RUtils::InMS(route.SampleDataArray[ci].Time) + " ms)");
-				//     // }
-				// }
-				// else 
-				// {
-				//     for (int32 i = 0; i < 20; i++)
-				//     {
-				//         UI::Text(i + " scrollable region");
-				//     }
-				// }
 			}
 			UI::EndChild();
-			UI::PopStyleColor();
+			PopStyleColor(sc);
 		}
 		
-		UI::PopStyleVar();
+		PopStyleVar(sv);
 	}
 }

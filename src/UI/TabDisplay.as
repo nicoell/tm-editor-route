@@ -17,13 +17,14 @@ namespace EditorRouteUI
             bool bIsChecked;
             void DrawValueUI() override 
             {
-                UI::PushStyleVar(UI::StyleVar::FramePadding, vec2(0, 0));
-                UI::PushStyleColor(UI::Col::FrameBg, vec4(89., 239., 134., 32.)/255.);
-                UI::PushStyleColor(UI::Col::FrameBgHovered, vec4(89., 239., 134., 64.)/255.);
-                UI::PushStyleColor(UI::Col::FrameBgActive, vec4(89., 239., 134., 96.)/255.);
+                int32 sc = 0; int32 sv = 0;
+                sv += PushStyleVarForced(UI::StyleVar::FramePadding, vec2(0, 0));
+                sc += PushStyleColor(UI::Col::FrameBg, vec4(89., 239., 134., 32.)/255.);
+                sc += PushStyleColor(UI::Col::FrameBgHovered, vec4(89., 239., 134., 64.)/255.);
+                sc += PushStyleColor(UI::Col::FrameBgActive, vec4(89., 239., 134., 96.)/255.);
                 bool isChecked =UI::Checkbox("##DisplayItemCheckbox" + "Idx", bIsChecked);
-                UI::PopStyleColor(3);
-                UI::PopStyleVar();
+                PopStyleColor(sc);
+                PopStyleVar(sv);
                 if (isChecked != bIsChecked)
                 {
                     bIsChecked = isChecked;
@@ -99,7 +100,8 @@ namespace EditorRouteUI
 				const int32 tableFlags = UI::TableFlags::RowBg | UI::TableFlags::SizingStretchProp | UI::TableFlags::BordersInnerV | UI::TableFlags::ScrollY;
 				if (UI::BeginTable("DisplayTabTable", 2, tableFlags, contentRegion))
 				{
-					UI::PushStyleVar(UI::StyleVar::FramePadding, vec2(8., 0.));
+                    int32 _sv = 0;
+					_sv += PushStyleVar(UI::StyleVar::FramePadding, vec2(8., 0.));
 
 					UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthFixed, 180.f);
 					UI::TableSetupColumn("Value");
@@ -122,7 +124,7 @@ namespace EditorRouteUI
 							UI::PopID();
 						}
 					}
-					UI::PopStyleVar();
+					PopStyleVar(_sv);
 					UI::EndTable();
 				}
 				CurrentSpectrumType = RouteSpectrum::ESpectrumType::Default;

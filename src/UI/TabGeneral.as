@@ -22,6 +22,23 @@ namespace EditorRouteUI
 			void RunAction() const { return; }
 		}
 
+		class SamplePropertyItemBase : ItemBase
+		{
+			Samples::EPropType PropType;
+			RouteSpectrum::ESpectrumType GetSpectrum() const override { return Samples::Prop::SpectrumType[PropType]; };
+			vec4 GetSpectrumColor() const override { return RouteSpectrum::CalcSampleSpectrumColor(GetSpectrum(), Ctx::Route, GetSample()); }
+			string GetName() const override { return Samples::Prop::Name[PropType]; };
+			string GetValue() const override 
+			{ 
+				if (GetSample() is null) { return "-"; } 
+				string fmt = GetValueFormat();
+				if (fmt.Length <= 0) { return GetSample().Prop[PropType]; }
+				return GetSample().Prop[PropType].Format(fmt);
+			}
+			string GetValueFormat() { return ""; }
+			Samples::FSampleData@ GetSample() const { return Ctx::Route.CurrentSample; }
+		}
+
 		class EventItemBase : ItemBase
 		{
 			Events::EventType EventType;
@@ -52,73 +69,59 @@ namespace EditorRouteUI
 		}
 		// ---------------------------------------------------------------
 		// Speed
-		class MaxSpeedItem : ItemBase
+		class MaxSpeedItem : SamplePropertyItemBase
 		{
-			string GetName() const override { return "Max Speed"; }
-			string GetValue() const override 
-			{
-				return Text::Format("%.2f km/h", GetSample().Velocity.Length() * 3.6);
-			}
-			RouteSpectrum::ESpectrumType GetSpectrum() const override { return RouteSpectrum::ESpectrumType::Speed; }
-			vec4 GetSpectrumColor() const override { return RouteSpectrum::CalcSpectrumColor_Speed(Ctx::Route, GetSample()); }
+			MaxSpeedItem() { PropType = Samples::EPropType::Speed; }
+			string GetName() const override { return "Max " + SamplePropertyItemBase::GetName(); }
+			Samples::FSampleData@ GetSample() const override { return Ctx::Route.SampleDataArray[Ctx::Route.MaxMagnitudeIndex]; }
+			string GetValueFormat() override { return "%.2f km/h"; }
 			string GetActionName() const override { return Strings::GotoTime; }
 			void RunAction() const override 
 			{
 				RouteTime::SetTime(GetSample().Time);
 			}
-
-			Route::FSampleData@ GetSample() { return Ctx::Route.SampleDataArray[Ctx::Route.MaxMagnitudeIndex]; }
 		}
-		class CurrentSpeedItem : ItemBase
+
+		class CurrentSpeedItem : SamplePropertyItemBase
 		{
-			string GetName() const override { return "Speed"; }
-			string GetValue() const override 
-			{
-				return Text::Format("%.2f km/h", Ctx::Route.CurrentSample.Velocity.Length() * 3.6);
-			}
-			RouteSpectrum::ESpectrumType GetSpectrum() const override { return RouteSpectrum::ESpectrumType::Speed; }
-			vec4 GetSpectrumColor() const override { return RouteSpectrum::CalcSpectrumColor_Speed(Ctx::Route, Ctx::Route.CurrentSample); }
+			CurrentSpeedItem() { PropType = Samples::EPropType::Speed; }
+			string GetValueFormat() override { return "%.2f km/h"; }
 		}
 		// ---------------------------------------------------------------
 		// "Altitude"
-		class MaxAltitudeItem : ItemBase
+
+		class MaxAltitudeItem : SamplePropertyItemBase
 		{
-			string GetName() const override { return "Max Altitude"; }
+			MaxAltitudeItem() { PropType = Samples::EPropType::Altitude; }
+			string GetName() const override { return "Max " + SamplePropertyItemBase::GetName(); }
+			Samples::FSampleData@ GetSample() const override { return Ctx::Route.SampleDataArray[Ctx::Route.MaxAltitudeIndex]; }
+			string GetValueFormat() override { return "%.2f m"; }
 			string GetTooltip() const override { return "Position z-Coordinate"; }
-			string GetValue() const override 
-			{
-				return Text::Format("%.2f m", GetSample().Position.y);
-			}
-			RouteSpectrum::ESpectrumType GetSpectrum() const override { return RouteSpectrum::ESpectrumType::Altitude; }
-			vec4 GetSpectrumColor() const override { return RouteSpectrum::CalcSpectrumColor_Altitude(Ctx::Route, GetSample()); }
 			string GetActionName() const override { return Strings::GotoTime; }
 			void RunAction() const override 
 			{
 				RouteTime::SetTime(GetSample().Time);
 			}
 
-			Route::FSampleData@ GetSample() { return Ctx::Route.SampleDataArray[Ctx::Route.MaxAltitudeIndex]; }
 		}
-		class CurrentAltitudeItem : ItemBase
+
+		class CurrentAltitudeItem : SamplePropertyItemBase
 		{
-			string GetName() const override { return "Altitude"; }
+			CurrentAltitudeItem() { PropType = Samples::EPropType::Altitude; }
+			string GetValueFormat() override { return "%.2f m"; }
 			string GetTooltip() const override { return "Position z-Coordinate"; }
-			string GetValue() const override 
-			{
-				return Text::Format("%.2f m", Ctx::Route.CurrentSample.Position.y);
-			}
-			RouteSpectrum::ESpectrumType GetSpectrum() const override { return RouteSpectrum::ESpectrumType::Altitude; }
-			vec4 GetSpectrumColor() const override { return RouteSpectrum::CalcSpectrumColor_Altitude(Ctx::Route, Ctx::Route.CurrentSample); }
 		}
 		// ---------------------------------------------------------------
 		// Position
-		class CurrentPositionItem : ItemBase
+		class CurrentPositionItem : SamplePropertyItemBase
 		{
-			string GetName() const override { return "Position"; }
-			string GetValue() const override 
-			{
-				return Ctx::Route.CurrentSample.Position.ToString();
-			}
+			CurrentPositionItem() { PropType = Samples::EPropType::Position; }
+		}
+		// ---------------------------------------------------------------
+		// AvgFPS
+		class CurrentAvgFPSItem : SamplePropertyItemBase
+		{
+			CurrentAvgFPSItem() { PropType = Samples::EPropType::AvgFPS; }
 		}
 		// ---------------------------------------------------------------
 		// Gears
@@ -146,12 +149,14 @@ namespace EditorRouteUI
 		{
 			string GetName() const override { return "Previous Gear"; }
 			Events::IEvent@ GetEvent() const override { return GetPreviousEvent(); }
+			string GetActionName() const override { return Strings::GotoPrev; }
 		}
 		// Next Gear
 		class NextGearItem : GearItemBase
 		{
 			string GetName() const override { return "Next Gear"; }
 			Events::IEvent@ GetEvent() const override { return GetNextEvent(); }
+			string GetActionName() const override { return Strings::GotoNext; }
 		}
 		// ---------------------------------------------------------------
 		// Wheels Contact Count
@@ -163,7 +168,9 @@ namespace EditorRouteUI
 
 		namespace Strings
 		{
-			string GotoTime = Icons::ArrowCircleORight + "Goto";
+			string GotoTime = Icons::LocationArrow + " Goto";
+			string GotoPrev = Icons::ArrowLeft + " Previous";
+			string GotoNext = "Next " + Icons::ArrowRight;
 		}
 		
 		namespace Ctx
@@ -189,6 +196,7 @@ namespace EditorRouteUI
 				RowItems.InsertLast(CurrentAltitudeItem());
 				RowItems.InsertLast(MaxAltitudeItem());
 				RowItems.InsertLast(WheelsContactItem());
+				RowItems.InsertLast(CurrentAvgFPSItem());
 				RowItems.InsertLast(RecordedFramesItem());
 
 				for(uint32 i = 0; i < RowItems.Length; i++) { RowItems[i].Idx = i; }
@@ -208,7 +216,8 @@ namespace EditorRouteUI
 				const int32 tableFlags = UI::TableFlags::RowBg | UI::TableFlags::SizingStretchProp | UI::TableFlags::BordersInnerV | UI::TableFlags::ScrollY;
 				if (UI::BeginTable("GeneralTabTable", 3, tableFlags, contentRegion))
 				{
-					UI::PushStyleVar(UI::StyleVar::FramePadding, vec2(8., 0.));
+					int32 _sv = 0;
+					_sv += PushStyleVar(UI::StyleVar::FramePadding, vec2(8., 0.));
 
 					UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthFixed, 120.f);
 					UI::TableSetupColumn("Value");
@@ -219,6 +228,7 @@ namespace EditorRouteUI
 					{
 						for (int32 i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
 						{
+							int32 __sv = 0; int32 __sc = 0;
 							ItemBase@ item = RowItems[i];
 							UI::PushID("GeneralRowItem" + i);
 
@@ -249,27 +259,67 @@ namespace EditorRouteUI
 								UI::Text(item.GetTooltip());
 								UI::EndTooltip();
 							}
-
-							UI::TableNextColumn();
-
-							UI::PushStyleColor(UI::Col::Text, item.GetSpectrumColor());
-							UI::Text(item.GetValue());
-							UI::PopStyleColor();
-
-							UI::TableNextColumn();
-							UI::PushStyleVar(UI::StyleVar::SelectableTextAlign, vec2(0.5, 0.5));
-							UI::PushStyleColor(UI::Col::Text, UI::GetStyleColor(UI::Col::ButtonActive));
-							if (item.GetActionName().Length != 0 && UI::Selectable(item.GetActionName(), false))
+							if (UI::IsItemHovered() && item.GetSpectrum() != RouteSpectrum::ESpectrumType::None)
 							{
-								item.Select();
-								item.RunAction();
+								UI::BeginTooltip();
+								UI::Text("Selecting this item shows its Spectrum Timeline.");
+								UI::EndTooltip();
 							}
-							UI::PopStyleColor();
-							UI::PopStyleVar();
+
+							UI::TableNextColumn();
+
+							if (item.GetSpectrum() != RouteSpectrum::ESpectrumType::None)
+							{
+								const vec4 spectrumColor = item.GetSpectrumColor();
+								const vec3 contrastColor = ContrastColor::Get(spectrumColor.xyz);
+								const vec4 tableBGColor = UI::GetStyleColor(UI::Col::TableRowBg);
+								const vec3 tableConstrastColor = ContrastColor::Get(tableBGColor.xyz);
+
+								if (bPreventBadSpectrumReadability && tableConstrastColor.x != contrastColor.x)
+								{
+									UI::Text(item.GetValue());
+									UI::SameLine();
+									UI::PushStyleColor(UI::Col::Text, spectrumColor);
+									UI::Text(Icons::LightbulbO);
+									if (UI::IsItemHovered())
+									{
+										UI::BeginTooltip();
+										UI::Text("Item is not colored to prevent bad readability.");
+										UI::EndTooltip();
+									}
+									UI::PopStyleColor();
+								}
+								else
+								{
+									UI::PushStyleColor(UI::Col::Text, spectrumColor);
+									UI::Text(item.GetValue());
+									UI::SameLine();
+									UI::Text(Icons::LightbulbO);
+									UI::PopStyleColor();
+								}
+							}
+							else 
+							{
+								UI::Text(item.GetValue());
+							}
+
+							UI::TableNextColumn();
+							if (item.GetActionName().Length != 0)
+							{
+								__sv += PushStyleVarForced(UI::StyleVar::SelectableTextAlign, vec2(0.5, 0.5));
+								__sc += PushStyleColor(UI::Col::Text, UI::GetStyleColor(UI::Col::ButtonActive));
+								if (UI::Selectable(item.GetActionName(), false))
+								{
+									item.Select();
+									item.RunAction();
+								}
+							}
+							PopStyleColor(__sc);
+							PopStyleVar(__sv);
 							UI::PopID();
 						}
 					}
-					UI::PopStyleVar();
+					PopStyleVar(_sv);
 					UI::EndTable();
 				}
 				CurrentSpectrumType = RouteSpectrum::ESpectrumType::Default;

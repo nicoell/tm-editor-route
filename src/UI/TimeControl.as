@@ -5,6 +5,7 @@ namespace EditorRouteUI
 	// ---------------------------------------------------------------
 	// Time Control
 	// ---------------------------------------------------------------
+
 	void ShowTimeControl()
 	{
 		// ---------------------------------------------------------------
@@ -16,23 +17,26 @@ namespace EditorRouteUI
 		
 		// ---------------------------------------------------------------
 		// Create ChildWindow for all TimeControls
-		const vec4 bgColor = UI::IsWindowFocused(UI::FocusedFlags::RootAndChildWindows) ? vec4(5., 125., 74., 128)/255. : vec4(5., 125., 74., 16)/255.;
-		UI::PushStyleColor(UI::Col::ChildBg, bgColor);
-		UI::PushStyleVar(UI::StyleVar::WindowPadding, vec2(6., 6.));
+		int32 sc = 0; int32 sv = 0;
+		const vec4 bgColor = UI::IsWindowFocused(UI::FocusedFlags::RootAndChildWindows) ? UI::GetStyleColor(UI::Col::TitleBgActive) : UI::GetStyleColor(UI::Col::TitleBg);
+		sc += PushStyleColorForced(UI::Col::ChildBg, bgColor);
+
+		vec2 timeControlChildSize = vec2(UI::GetWindowContentRegionWidth(), TimeControlChildHeight);
 
 		const int32 windowFlags = UI::WindowFlags::NoResize | UI::WindowFlags::NoScrollbar | UI::WindowFlags::NoScrollWithMouse | UI::WindowFlags::AlwaysUseWindowPadding;
-		if (UI::BeginChild("TimeControlChild", UI::GetContentRegionAvail(), false, windowFlags))
+		if (UI::BeginChild("TimeControlChild", timeControlChildSize, false, windowFlags))
 		{
-			
 			// ---------------------------------------------------------------
 			// Setup Style and calculate child regions
-			UI::PushStyleColor(UI::Col::ChildBg, vec4(0.));
-			UI::PushStyleColor(UI::Col::Button, vec4(0.));
-			UI::PushStyleVar(UI::StyleVar::WindowPadding, vec2(0., 0.));
+			int32 _sc = 0; int32 _sv = 0;
+
+			_sc += PushStyleColorForced(UI::Col::ChildBg, vec4(0.));
+			_sc += PushStyleColorForced(UI::Col::Button, vec4(0.));
+
 
 			const float paddingBetween = 2;
 			vec2 controlsChildSize;
-			vec2 contentRegion = UI::GetContentRegionAvail();// - UI::GetStyleVarVec2(UI::StyleVar::WindowPadding);
+			vec2 contentRegion = timeControlChildSize;
 			contentRegion.x -= paddingBetween;
 			{
 				const float minControlsWidth = 120.;
@@ -51,8 +55,16 @@ namespace EditorRouteUI
 			{            
 				// ---------------------------------------------------------------
 				// Player Controls
-				vec2 buttonSize = UI::GetContentRegionAvail();
-				buttonSize.x /= 4;
+				// Reduce Spacing a bit
+				int32 __sv = 0;
+				__sv += PushStyleVarForced(UI::StyleVar::ItemSpacing, UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing) / 2.);
+				
+				const int32 numButtons = 4;
+				vec2 buttonSize =  UI::GetContentRegionAvail();
+				{
+					buttonSize.x = buttonSize.x - UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing).x * (numButtons - 1);
+					buttonSize.x = buttonSize.x / numButtons;
+				}
 
 				const bool isDisabled = !bAreRoutesAvailable;
 				UI::BeginDisabled(isDisabled);
@@ -84,6 +96,7 @@ namespace EditorRouteUI
 					vec2 popupPosOffset = vec2(-buttonSize.x / 2, buttonSize.y);
 					ShowControlMenuPopup(popupPosOffset);
 				}
+				PopStyleVar(__sv);
 			}
 			UI::EndChild();
 			
@@ -106,50 +119,97 @@ namespace EditorRouteUI
 
 					UI::SetNextItemWidth(timeSliderWidth);
 
-					double curTime = (RouteTime::MinTime + TimePercentage * RouteTime::Duration) / 1000.;
-					float minTime = (RouteTime::MinTime + TimeControlLimits.x * RouteTime::Duration) / 1000.;
-					float maxTime = (RouteTime::MinTime + TimeControlLimits.y * RouteTime::Duration) / 1000.;
+					double curTimeInSeconds = (RouteTime::MinTime + TimePercentage * RouteTime::Duration) / 1000.;
+					float minTimeInSeconds = (RouteTime::MinTime + TimeControlLimits.x * RouteTime::Duration) / 1000.;
+					float maxTimeInSeconds = (RouteTime::MinTime + TimeControlLimits.y * RouteTime::Duration) / 1000.;
 
-					UI::PushFont(Fonts::UI(Fonts::Type::DroidSansBold));
-					UI::PushStyleVar(UI::StyleVar::ItemSpacing, vec2(0));
-					UI::PushStyleVar(UI::StyleVar::FramePadding, vec2(0, 1));
+					
+					int32 __sc = 0; int32 __sv = 0;
 
-					const vec2 magicPosOffset = vec2(2, 2); // Not sure which style this comes from
-					vec2 drawPosition = UI::GetWindowPos() + UI::GetCursorPos()  + magicPosOffset;
-					const vec2 magicSizeOffset = vec2(-2, -4); // Not sure which style this comes from. Maybe font size?
-					vec2 drawRegion = vec2(UI::GetWindowContentRegionWidth() - magicPosOffset.x, UI::GetFrameHeight()) + magicSizeOffset;
+					float framePaddingY = (searchChildSize.y - UI::GetTextLineHeight()) / 2.;
+					framePaddingY = Math::Max(0, framePaddingY);
+					__sv += PushStyleVarForced(UI::StyleVar::FramePadding, vec2(0, framePaddingY));
+
+
+					vec2 drawPosition = UI::GetWindowPos() + UI::GetCursorPos();
+					drawPosition.x += 1; // Border things
+					vec2 drawRegion = vec2(UI::GetWindowContentRegionWidth(), searchChildSize.y);
+					drawRegion.x -= 1; // Border things
 
 					DrawTimeLine(drawPosition, drawRegion);
-					
-					UI::PushStyleColor(UI::Col::FrameBg, vec4(0.));
-					UI::PushStyleColor(UI::Col::FrameBgActive, vec4(0.));
-					UI::PushStyleColor(UI::Col::FrameBgHovered, vec4(0.));
-					UI::PushStyleColor(UI::Col::Text, vec4(0, 0, 0, 1));
-				
-					curTime = UI::SliderFloat("##TimeSlider", curTime, minTime, maxTime, "%.3f s");
-					TimePercentage = RouteTime::GetTimePercentage(curTime * 1000.);
+
+					__sc += PushStyleColorForced(UI::Col::FrameBg, vec4(0.));
+					__sc += PushStyleColorForced(UI::Col::FrameBgActive, vec4(0.));
+					__sc += PushStyleColorForced(UI::Col::FrameBgHovered, vec4(0.));
+					__sc += PushStyleColorForced(UI::Col::SliderGrab, vec4(0.));
+					__sc += PushStyleColorForced(UI::Col::SliderGrabActive, vec4(0.));
+					__sc += PushStyleColorForced(UI::Col::Text, vec4(0, 0, 0, 1));
+
+					const vec2 cursorPos = UI::GetCursorPos();
+
+					// Slider without Text
+					curTimeInSeconds = UI::SliderFloat("##TimeSlider", curTimeInSeconds, minTimeInSeconds, maxTimeInSeconds, " ");
+					const double curTime = curTimeInSeconds * 1000.; // Back to ms
+					TimePercentage = RouteTime::GetTimePercentage(curTime);
+
+					// Custom Slider Text
+					{
+						string text = Text::Format("%.3f s", curTimeInSeconds);
+						const vec2 baseSliderTextPos = cursorPos + vec2(0, framePaddingY);
+
+						const vec4 spectrumColor = RouteSpectrum::CalcCurrentSpectrumColorByTime(RUtils::AsInt(RouteTime::GetTimeByPercentage(0.5)));
+						const vec3 contrastColor = ContrastColor::Get(spectrumColor.xyz);
+
+						UI::PushStyleVar(UI::StyleVar::SelectableTextAlign, vec2(0.5, 0.5));
+
+						{
+							// Text Shadow (using Spectrum Color)
+							UI::PushStyleColor(UI::Col::Text, vec4(spectrumColor.xyz, 1));
+							UI::SetCursorPos(baseSliderTextPos + vec2(2, 2));
+							UI::Selectable(text, false);
+							UI::PopStyleColor(1);
+						}
+						
+						{
+							// Text Foreground (using Contrast Color) in Fake Bold
+							UI::PushStyleColor(UI::Col::Text, vec4(contrastColor, 1));
+							UI::SetCursorPos(baseSliderTextPos);
+							UI::Selectable(text, false);
+							UI::SetCursorPos(baseSliderTextPos + vec2(1, 0)); // Offset text to get fake Bold effect
+							UI::Selectable(text, false);
+							UI::PopStyleColor(1);
+						}
+
+						UI::PopStyleVar(1);
+					}
 
 					bIsTimeLineSliderActive = UI::IsItemActive();
 					bIsTimeLineSliderHovered = UI::IsItemHovered();
 
-					// TimePercentage = UI::SliderFloat("##TimeSlider", TimePercentage, TimeControlLimits.x, TimeControlLimits.y); 
+					// Keeping this as an idea to align text with slider
+					// {
+					// 	__sv += PushStyleVarForced(UI::StyleVar::SelectableTextAlign, vec2(TimePercentage, 0.5));
+					// 	UI::SetCursorPos(cursorPos + vec2(0, framePaddingY - 2));
+					// 	UI::Selectable(text, false);
+					// 	PopStyleVar(); __sv--;
+					// }
+
 					TimePercentage = Math::Clamp(TimePercentage, TimeControlLimits.x, TimeControlLimits.y);
 
-					UI::PopStyleColor(4);
-					UI::PopStyleVar(2);
-					UI::PopFont();
+					PopStyleColor(__sc);
+					PopStyleVar(__sv);
 				}
 				UI::EndDisabled();
 			}
 			UI::EndChild();
-			UI::PopStyleVar();
-			UI::PopStyleColor(2);
+			PopStyleVar(_sv);
+			PopStyleColor(_sc);
 			
 		}
 		UI::EndChild();
 
-		UI::PopStyleVar(1);
-		UI::PopStyleColor(1);
+		UI::PopStyleVar(sv);
+		UI::PopStyleColor(sc);
 
 		// ---------------------------------------------------------------
 		// Apply UI State to Time
@@ -168,7 +228,6 @@ namespace EditorRouteUI
 	{
 		auto drawlist = UI::GetWindowDrawList();
 		
-		//vec2 drawRegion = vec2(width, height);
 		vec4 fullSpectrumRect = vec4(drawPosition, drawRegion);
 
 		auto route = RouteContainer::GetSelectedRoute();
@@ -197,11 +256,22 @@ namespace EditorRouteUI
 			vec4 borderColor = bIsTimeLineSliderHovered || bIsTimeLineSliderActive ?  UI::GetStyleColor(UI::Col::SliderGrabActive) : UI::GetStyleColor(UI::Col::SliderGrab);
 			drawlist.AddRect(fullSpectrumRect, borderColor);
 
-
 			const double duration = RUtils::InMS(route.GetDuration());
 			float t = duration != 0 ? RUtils::InMS(route.CurrentSample.Time - route.GetMinTime()) / RUtils::InMS(route.GetDuration()) : 0.0;
 
 			t = Math::Clamp(t, 0., 1.);
+
+			const vec4 sliderGrabColor = UI::GetStyleColor(UI::Col::SliderGrab);
+			const vec3 contrastColor = ContrastColor::Get(sliderGrabColor.xyz);
+
+			const float relGrabHeight = 0.9;
+			vec2 customSliderGrabSize = vec2(UI::GetStyleVarFloat(UI::StyleVar::GrabMinSize), relGrabHeight * drawRegion.y);
+			vec2 customSliderDrawPos = drawPosition + (vec2(t, (1.0 - relGrabHeight)/2) * drawRegion) - (vec2(t, 0) * customSliderGrabSize);
+
+			const float sliderGrabRounding = UI::GetStyleVarFloat(UI::StyleVar::GrabRounding);
+
+			drawlist.AddRectFilled(vec4(customSliderDrawPos, customSliderGrabSize), sliderGrabColor, sliderGrabRounding);
+			drawlist.AddRect(vec4(customSliderDrawPos, customSliderGrabSize),  vec4(contrastColor, .5f), sliderGrabRounding, 1.0f);
 		}
 	}
 

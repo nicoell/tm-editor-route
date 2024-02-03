@@ -1,26 +1,10 @@
-// namespace State
-// {
-// 	bool MenuButtonDown = false;
-// }
-
-// void OnKeyPress(bool down, VirtualKey key)
-// {
-// 	if (key == VirtualKey::Menu) {
-// 		State::MenuButtonDown = down;
-// 	}
-// }
-
-// void OnMouseButton(bool down, int32 button, int32 x, int32 y)
-// {
-// 	if (button == 0 && down && State::MenuButtonDown) {
-// 		Setting_Follow = false;
-// 	}
-// }
-
 void Main()
 {
 	Fonts::Load();
 	Events::CreateCDOs();
+
+	// NEVER COMMIT WITH THIS
+	// RouteRecorder::AddDebugData();
 
 	while (true) 
 	{
@@ -40,7 +24,7 @@ void Main()
 		}
 		if (GameState::IsReadyToRenderRoute())
 		{
-			// RouteSpectrum::ProcessRequest();
+			// Nothing atm
 		}
 	}
 }
@@ -51,6 +35,12 @@ void Update(float dt)
 	{
 		RouteTime::UpdateTime(dt);
 	}
+	// Start recording frame times as soon as player exists to have frame times ready when recording starts
+	// This is only ever true in Editor
+	if (GameState::State::bDoesPlayerExist)
+	{
+		RouteRecorder::RecordFrameTimes(dt);
+	}
 }
 
 void Render()
@@ -58,11 +48,14 @@ void Render()
 	if (GameState::IsReadyToRenderRoute())
 	{
 		EditorRouteUI::Show();
-		RouteSpectrum::ProcessRequest();
+		RouteSpectrum::ProcessRequests();
 		RouteRenderer::Render();
 	}
-	
-	// RouteRenderer::DebugTests();
+}
+
+void RenderMenu()
+{
+	EditorRouteUI::RenderMenu();
 }
 
 void RenderEarly()

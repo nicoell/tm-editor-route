@@ -58,7 +58,7 @@ namespace RouteContainer
 	{
 		for (int32 i = 0; i < int32(Routes.Length); i++)
 		{
-			if (Routes[i].GetNumSamples() <= 1)
+			if (Routes[i].GetNumSamples() == 0)
 			{
 				Routes.RemoveAt(i);
 				i--;

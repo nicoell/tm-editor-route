@@ -36,33 +36,62 @@ namespace RouteRenderer
 
 		for (uint32 row = 0; row < RouteContainer::Routes.Length; row++)
 		{
-			const uint32 i = RouteContainer::Table::OrderedRouteIndices[row];
-			if (RouteContainer::Table::VisibleRoutes[i])
+			const uint32 routeIdx = RouteContainer::Table::OrderedRouteIndices[row];
+			bool isSelected = RouteContainer::Table::SelectedRouteIndex == routeIdx;
+			if (RouteContainer::Table::VisibleRoutes[routeIdx] && !isSelected)
 			{
-				auto route = RouteContainer::Routes[i];
-				bool isSelected = RouteContainer::Table::SelectedRouteIndex == i;
-
-				if (Setting_RenderSelectedOnly && !isSelected) { continue; }
-
-				RenderRouteLine(route, isSelected);
-				RenderEvents(route, isSelected);
-
-				auto@ sample = route.CurrentSample;
-
-				{
-					RenderGizmo(sample);
-					RenderBox(sample);
-				}
-
+				RenderRoute(routeIdx);
 			}
 		}
+
 		// Draw Selected Route later
+		if (RouteContainer::Routes.Length > 0)
+		{
+			const uint32 routeIdx = RouteContainer::Table::SelectedRouteIndex;
+			if (RouteContainer::Table::VisibleRoutes[routeIdx])
+			{
+				RenderRoute(routeIdx);
+			}
+		}
+
+
 		if (bDebug) { trace("After Render: " + Time::get_Now());}
 
 		UpdateRenderTime(Time::get_Now() - startTime);
 
 		bDebug = false;
 	}
+
+	void RenderRoute(const uint32 routeIdx)
+	{
+		auto route = RouteContainer::Routes[routeIdx];
+		bool isSelected = RouteContainer::Table::SelectedRouteIndex == routeIdx;
+
+		if (Setting_RenderSelectedOnly && !isSelected) { return; }
+
+		vec4 color = isSelected ? vec4(Setting_SelectedRouteColor, 1) : vec4(Setting_RouteColor, 0.8);
+
+		{
+			nvg::StrokeWidth(Setting_RouteLineWidth * Setting_ElapsedRouteWidthModifier);
+			nvg::StrokeColor(vec4(color.xyz, color.w * Setting_ElapsedRouteOpacityModifier));
+			RenderRouteLine(route, 0, route.BestSampleIndex + 1);
+		}
+		{
+			nvg::StrokeWidth(Setting_RouteLineWidth);
+			nvg::StrokeColor(color);
+			RenderRouteLine(route, route.BestSampleIndex, route.GetNumSamples() - route.BestSampleIndex);
+		}
+
+		RenderEvents(route, isSelected);
+
+		auto@ sample = route.CurrentSample;
+
+		{
+			RenderGizmo(sample);
+			RenderBox(sample);
+		}
+	}
+
 
 	void UpdateRenderTime(uint64 newRenderTime)
 	{
@@ -78,12 +107,8 @@ namespace RouteRenderer
 		Stats::RenderTime /= Stats::Internal::MovWindowSize;
 	}
 
-	void RenderRouteLine(Route::FRoute@ route, bool isSelected)
+	void RenderRouteLine(Route::FRoute@ route, const int32 startIdx, const int32 count)
 	{
-		vec4 color = isSelected ? vec4(Setting_SelectedRouteColor, 1) : vec4(Setting_RouteColor, 0.8);
-		nvg::StrokeWidth(Setting_RouteLineWidth);
-		nvg::StrokeColor(color);
-
 		// Let nanovg handle scale and transform for free
 		nvg::Scale(CameraExt::ScaleToDisplay);
 		nvg::Translate(CameraExt::DisplayPos);
@@ -95,10 +120,10 @@ namespace RouteRenderer
 		vec3 p;
 		bool bIsLineStart = true;
 
-		const uint32 numPositions = route.Positions.Length;
+		const uint32 numPositions = startIdx + count;
 
 		nvg::BeginPath();
-		for (uint32 i = 0; i < numPositions; i++) 
+		for (uint32 i = startIdx; i < numPositions; i++) 
 		{
 			if (route.bIsDiscontinuousArray[i])
 			{
@@ -155,7 +180,7 @@ namespace RouteRenderer
 		}
 	}
 
-	void RenderGizmo(Route::FSampleData@ sample)
+	void RenderGizmo(Samples::FSampleData@ sample)
 	{
 		if (!Setting_RenderGizmo) { return; }
 
@@ -198,7 +223,7 @@ namespace RouteRenderer
 		}
 	}
 
-	void RenderBox(Route::FSampleData@ sample)
+	void RenderBox(Samples::FSampleData@ sample)
 	{
 		if (!Setting_RenderCarBox) { return; }
 
@@ -262,4 +287,5 @@ namespace RouteRenderer
 			}
 		}
 	}
+
 }
