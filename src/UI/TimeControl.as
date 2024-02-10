@@ -116,8 +116,9 @@ namespace EditorRouteUI
 				{
 					float windowRegionWidth = UI::GetWindowContentRegionWidth();
 					float timeSliderWidth = windowRegionWidth;
+					float timeSliderWidthUnscaled = timeSliderWidth / UI::GetScale();
 
-					UI::SetNextItemWidth(timeSliderWidth);
+					UI::SetNextItemWidth(timeSliderWidthUnscaled);
 
 					double curTimeInSeconds = (RouteTime::MinTime + TimePercentage * RouteTime::Duration) / 1000.;
 					float minTimeInSeconds = (RouteTime::MinTime + TimeControlLimits.x * RouteTime::Duration) / 1000.;
@@ -281,7 +282,7 @@ namespace EditorRouteUI
 		UI::PushStyleVar(UI::StyleVar::WindowPadding, vec2(4., 4.));
 		UI::PushStyleVar(UI::StyleVar::ItemSpacing, vec2(0., 2.));
 		UI::PushStyleColor(UI::Col::Separator, vec4(128., 128., 128., 96.)/255.);
-		vec2 popupPos = UI::GetWindowPos() + UI::GetCursorPos() + offset;
+		vec2 popupPos = (UI::GetWindowPos() + UI::GetCursorPos() + offset) / UI::GetScale();
 		UI::SetNextWindowPos(int(popupPos.x), int(popupPos.y));
 		if (UI::BeginPopup("ControlMenuPopup", UI::WindowFlags::NoMove ))
 		{

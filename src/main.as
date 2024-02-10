@@ -3,8 +3,10 @@ void Main()
 	Fonts::Load();
 	Events::CreateCDOs();
 
-	// NEVER COMMIT WITH THIS
-	// RouteRecorder::AddDebugData();
+#if ER_DEBUG
+	RouteRecorder::AddDebugData(7);
+	GameState::InitRuntime();
+#endif
 
 	while (true) 
 	{
@@ -49,7 +51,11 @@ void Render()
 	{
 		EditorRouteUI::Show();
 		RouteSpectrum::ProcessRequests();
-		RouteRenderer::Render();
+
+		if (EditorRouteUI::bIsWindowOpen)
+		{
+			RouteRenderer::Render();
+		}
 	}
 }
 

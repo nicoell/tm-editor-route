@@ -9,7 +9,7 @@ namespace RouteRenderer
 		int32 RequestedLines = 0;
 		double RenderTime = 0;
 
-		namespace Internal
+		namespace Private
 		{
 			uint32 MovWindowSize = 32;
 			uint32 WinIndex = 0;
@@ -71,13 +71,12 @@ namespace RouteRenderer
 
 		vec4 color = isSelected ? vec4(Setting_SelectedRouteColor, 1) : vec4(Setting_RouteColor, 0.8);
 
+		nvg::StrokeWidth(Setting_RouteLineWidth);
 		{
-			nvg::StrokeWidth(Setting_RouteLineWidth * Setting_ElapsedRouteWidthModifier);
 			nvg::StrokeColor(vec4(color.xyz, color.w * Setting_ElapsedRouteOpacityModifier));
 			RenderRouteLine(route, 0, route.BestSampleIndex + 1);
 		}
 		{
-			nvg::StrokeWidth(Setting_RouteLineWidth);
 			nvg::StrokeColor(color);
 			RenderRouteLine(route, route.BestSampleIndex, route.GetNumSamples() - route.BestSampleIndex);
 		}
@@ -95,16 +94,16 @@ namespace RouteRenderer
 
 	void UpdateRenderTime(uint64 newRenderTime)
 	{
-		if (Stats::Internal::RenderTimes.Length != Stats::Internal::MovWindowSize) { Stats::Internal::RenderTimes.Resize(Stats::Internal::MovWindowSize); }
+		if (Stats::Private::RenderTimes.Length != Stats::Private::MovWindowSize) { Stats::Private::RenderTimes.Resize(Stats::Private::MovWindowSize); }
 
-		Stats::Internal::WinIndex = Stats::Internal::WinIndex % Stats::Internal::MovWindowSize;
-		Stats::Internal::RenderTimes.InsertAt(Stats::Internal::WinIndex, newRenderTime);
-		Stats::Internal::WinIndex++;
+		Stats::Private::WinIndex = Stats::Private::WinIndex % Stats::Private::MovWindowSize;
+		Stats::Private::RenderTimes.InsertAt(Stats::Private::WinIndex, newRenderTime);
+		Stats::Private::WinIndex++;
 
 		Stats::RenderTime = 0;
-		for(uint32 i = 0; i < Stats::Internal::MovWindowSize; i++)
-		{ Stats::RenderTime += Stats::Internal::RenderTimes[i]; }
-		Stats::RenderTime /= Stats::Internal::MovWindowSize;
+		for(uint32 i = 0; i < Stats::Private::MovWindowSize; i++)
+		{ Stats::RenderTime += Stats::Private::RenderTimes[i]; }
+		Stats::RenderTime /= Stats::Private::MovWindowSize;
 	}
 
 	void RenderRouteLine(Route::FRoute@ route, const int32 startIdx, const int32 count)

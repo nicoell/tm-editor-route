@@ -1,5 +1,7 @@
 namespace EditorRouteUI
 {
+	int32 ContextRouteIdx = -1;
+
 	// ---------------------------------------------------------------
 	// Route Table
 	// ---------------------------------------------------------------
@@ -56,7 +58,8 @@ namespace EditorRouteUI
 
 				// ---------------------------------------------------------------
 				// Route Table
-				const int32 tableFlags = UI::TableFlags::RowBg | UI::TableFlags::ScrollY | UI::TableFlags::Sortable | UI::TableFlags::BordersH | UI::TableFlags::BordersV | UI::TableFlags::SizingFixedFit;
+				int32 clickedHoveredRoute = -1;
+				const int32 tableFlags = UI::TableFlags::RowBg | UI::TableFlags::ScrollY | UI::TableFlags::Sortable | UI::TableFlags::BordersH | UI::TableFlags::BordersV | UI::TableFlags::SizingFixedFit | UI::TableFlags::Resizable ;
 				if (UI::BeginTable("Recorded Routes", 2, tableFlags, tableSize))
 				{
 					UI::Indent(2);
@@ -103,15 +106,57 @@ namespace EditorRouteUI
 							UI::PopStyleVar(_sv);
 
 							UI::TableNextColumn();
+							
+							// ---------------------------------------------------------------
+							// Route ID and Duration
 
-							if (UI::Selectable(i + "##IsSelected", RouteContainer::Table::SelectedRouteIndex == i, UI::SelectableFlags::SpanAllColumns | UI::SelectableFlags::AllowOverlap))
+							if (UI::Selectable(i + "\t\\$aaa"+ Text::Format("%0.2f s", double(RouteContainer::Routes[i].GetDuration()) / 1000.) +"" + "##IsSelected", RouteContainer::Table::SelectedRouteIndex == i, UI::SelectableFlags::SpanAllColumns | UI::SelectableFlags::AllowOverlap))
 							{
 								RouteContainer::Table::SetSelectedRoute(i);
 							}
+
+							if (UI::IsItemHovered() && UI::IsMouseClicked(UI::MouseButton::Right)) { clickedHoveredRoute = i; }
+							
 							UI::PopID();
 						}
 					}
 					UI::EndTable();
+
+					// ---------------------------------------------------------------
+					// Context Menu
+					if (clickedHoveredRoute >=0) 
+					{ 
+						UI::OpenPopup("RouteTableContextMenu"); 
+						ContextRouteIdx = clickedHoveredRoute; 
+					}
+					{
+						if (UI::BeginPopup("RouteTableContextMenu", UI::WindowFlags::NoMove ))
+						{
+							if (UI::MenuItem(Icons::Flag + "Show Route " + ContextRouteIdx + " only", "r"))
+							{
+								for (uint32 i = 0; i < RouteContainer::Routes.Length; i++)
+								{
+									RouteContainer::Table::VisibleRoutes[i] = i == uint32(ContextRouteIdx);
+								}
+							}
+							// ---------------------------------------------------------------
+							// Extra spacing before destructive items
+							UI::PushStyleVar(UI::StyleVar::ItemSpacing, vec2(0., 4.));
+							UI::Separator();
+							UI::Separator();
+							UI::PopStyleVar(1);
+							if (UI::MenuItem("\\$d32" + Icons::Trash + " Delete Route"))
+							{
+								RouteIdxToDelete = ContextRouteIdx;
+                            	UI::CloseCurrentPopup();
+							}
+							UI::EndPopup();
+						}
+						else 
+						{
+							ContextRouteIdx = -1;
+						}
+					}
 
 					// ---------------------------------------------------------------
 					// Buttons to Show, Hide and Invert selections

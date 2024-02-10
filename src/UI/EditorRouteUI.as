@@ -21,6 +21,7 @@ namespace EditorRouteUI
 	bool bIsLooped = false;
 
 	RouteSpectrum::ESpectrumType CurrentSpectrumType;
+	int32 RouteIdxToDelete = -1;
 
 	void SelectRoute(const uint32 routeIndex, const RouteSpectrum::ESpectrumType spectrum)
 	{
@@ -30,7 +31,7 @@ namespace EditorRouteUI
 
 	void RenderMenu()
 	{
-		if (UI::MenuItem("\\$0A6" + Icons::Map + "\\$z Editor Route", "", bIsWindowOpen))
+		if (UI::MenuItem(Strings::MenuTitle, "", bIsWindowOpen))
 		{
 			bIsWindowOpen = !bIsWindowOpen;
 		}
@@ -52,12 +53,13 @@ namespace EditorRouteUI
 
 		// ---------------------------------------------------------------
 		// Window
-		if (UI::Begin(Icons::MapO + " Editor Route", bIsWindowOpen, UI::WindowFlags::NoScrollbar | UI::WindowFlags::NoScrollWithMouse))
+		if (UI::Begin(Strings::WindowTitle, bIsWindowOpen, UI::WindowFlags::NoScrollbar | UI::WindowFlags::NoScrollWithMouse))
 		{
 			CurrentSpectrumType = RouteSpectrum::CurrentSpectrum;
 			ContentWindowSize = UI::GetContentRegionAvail();
 			const float emptySpace = ContentWindowSize.y - TimeControlChildHeight;
 			ContentWindowSize.y -= TimeControlChildHeight + UI::GetStyleVarVec2(UI::StyleVar::ItemSpacing).y;
+			RouteIdxToDelete = -1;
 
 			if (ContentWindowSize.y <= 1 ) { ContentWindowSize.y = 0; }
 
@@ -106,6 +108,7 @@ namespace EditorRouteUI
 			// In any case, draw the Time Controls even if no Routes are available
 			ShowTimeControl();
 
+			RouteContainer::DeleteRoute(RouteIdxToDelete);
 			SelectRoute(RouteContainer::Table::SelectedRouteIndex, CurrentSpectrumType);
 		}
 		UI::End();

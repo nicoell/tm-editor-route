@@ -65,21 +65,21 @@ namespace Samples
 		float get_Altitude() const property { return Position.y; }
 		float get_AvgFPS() const property { return AvgFrametime != 0 ? 1000. / AvgFrametime : 0; }
 
-		Internal::FPropVariant get_Prop(EPropType i)
+		Private::FPropVariant get_Prop(EPropType i)
 		{
 			switch(i)
 			{
-				case EPropType::Time: return Internal::FPropFloat(Time);
-				case EPropType::Position: return Internal::FPropVec3(Position);
-				case EPropType::Velocity: return Internal::FPropVec3(Velocity);
-				case EPropType::Rotation: return Internal::FPropQuat(Rotation);
-				case EPropType::Speed: return Internal::FPropFloat(Speed);
-				case EPropType::Altitude: return Internal::FPropFloat(Altitude);
-				case EPropType::AvgFPS: return Internal::FPropFloat(AvgFPS);
+				case EPropType::Time: return Private::FPropFloat(Time);
+				case EPropType::Position: return Private::FPropVec3(Position);
+				case EPropType::Velocity: return Private::FPropVec3(Velocity);
+				case EPropType::Rotation: return Private::FPropQuat(Rotation);
+				case EPropType::Speed: return Private::FPropFloat(Speed);
+				case EPropType::Altitude: return Private::FPropFloat(Altitude);
+				case EPropType::AvgFPS: return Private::FPropFloat(AvgFPS);
 				// [New-PropType]: Implement here for new PropTypes
 			}
             error("Missing mapping from PropType to SpectrumType for PropType: " + i);
-			return Internal::FPropInt32(0);
+			return Private::FPropInt32(0);
 		}
 	}
 
@@ -102,7 +102,7 @@ namespace Samples
 		return sample;
 	}
 
-	namespace Internal
+	namespace Private
 	{
 		// [New-PropType]: If the underlyign Data Type is not yet implemented, add it here 
 		class FPropVariant

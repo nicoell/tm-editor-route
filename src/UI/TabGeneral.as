@@ -213,15 +213,15 @@ namespace EditorRouteUI
 			{
 				const vec2 contentRegion = UI::GetContentRegionAvail();
 
-				const int32 tableFlags = UI::TableFlags::RowBg | UI::TableFlags::SizingStretchProp | UI::TableFlags::BordersInnerV | UI::TableFlags::ScrollY;
+				const int32 tableFlags = UI::TableFlags::RowBg | UI::TableFlags::SizingStretchProp | UI::TableFlags::Resizable | UI::TableFlags::BordersInnerV | UI::TableFlags::ScrollY;
 				if (UI::BeginTable("GeneralTabTable", 3, tableFlags, contentRegion))
 				{
 					int32 _sv = 0;
 					_sv += PushStyleVar(UI::StyleVar::FramePadding, vec2(8., 0.));
 
-					UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthFixed, 120.f);
-					UI::TableSetupColumn("Value");
-					UI::TableSetupColumn("Action", UI::TableColumnFlags::WidthFixed, 80.f);
+					UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthStretch, 0.25f);
+					UI::TableSetupColumn("Value", UI::TableColumnFlags::WidthStretch, 0.5f);
+					UI::TableSetupColumn("Action", UI::TableColumnFlags::WidthStretch, 0.25f);
 
 					UI::ListClipper clipper(RowItems.Length);
 					while(clipper.Step())

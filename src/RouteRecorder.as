@@ -107,19 +107,23 @@ namespace RouteRecorder
 
 	// ---------------------------------------------------------------
 
-	void AddDebugData(int32 numElements = 4000) 
+	void AddDebugData(int32 numEntries = 1, int32 maxNumElements = 4000) 
 	{
-		RouteContainer::AdvanceRoute();
-		auto route = RouteContainer::GetCurrentRoute();
-		for(int32 i = 0; i < numElements; i++)
+		for(int32 i = 0; i < numEntries; i++)
 		{
-			Samples::FSampleData newEntry;
-			newEntry.Time = i;
-			newEntry.Position = vec3(0, 0, 0);
-			route.SampleDataArray.InsertLast(newEntry);
-			route.Positions.InsertLast(newEntry.Position);
-			route.bIsDiscontinuousArray.InsertLast(i % 8 == 0);
+			RouteContainer::AdvanceRoute();
+			auto route = RouteContainer::GetCurrentRoute();
+
+			maxNumElements = Math::Rand(maxNumElements / 2, maxNumElements);
+			for(int32 i = 0; i < maxNumElements; i++)
+			{
+				Samples::FSampleData newEntry;
+				newEntry.Time = i * 4222;
+				newEntry.Position = vec3(0, 0, 0);
+				route.SampleDataArray.InsertLast(newEntry);
+				route.Positions.InsertLast(newEntry.Position);
+				route.bIsDiscontinuousArray.InsertLast(i % 8 == 0);
+			}
 		}
-		GameState::InitRuntime();
 	}
 }

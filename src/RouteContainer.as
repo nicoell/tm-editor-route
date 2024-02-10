@@ -54,6 +54,36 @@ namespace RouteContainer
 		}
 	}
 
+	void DeleteRoute(const int32 i)
+	{
+		if (i >= 0 && uint32(i) < Routes.Length)
+		{
+			Routes.RemoveAt(uint32(i));
+			Table::VisibleRoutes.RemoveAt(uint32(i));
+			RouteContainer::Table::SelectedRouteIndex = i == 0 ? i : i - 1;
+
+			for (int32 k = i; k < int32(Routes.Length); k++)
+			{
+				Routes[k].ID = k;
+			}
+			
+			for (int32 k = 0; k < int32(Table::OrderedRouteIndices.Length); k++)
+			{
+				if (Table::OrderedRouteIndices[k] == i) 
+				{
+					Table::OrderedRouteIndices.RemoveAt(k);
+					k--;
+				}
+				else if (Table::OrderedRouteIndices[k] > i) 
+				{
+					Table::OrderedRouteIndices[k]--;
+				}
+			}
+		}
+
+		RouteContainer::CacheStats();
+	}
+
 	void FinalizeRoutes()
 	{
 		for (int32 i = 0; i < int32(Routes.Length); i++)

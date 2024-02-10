@@ -12,7 +12,7 @@ namespace RouteSpectrum
 		NumTypes,
 		None = NumTypes
 	}
-	namespace Internal
+	namespace Private
 	{
 		enum ESpectrumDataSource
 		{
@@ -68,11 +68,11 @@ namespace RouteSpectrum
 
 	vec4 CalcSpectrumColorByTime(ESpectrumType spectrumType, Route::FRoute@ route, const int32 time)
 	{
-		switch(Internal::SpectrumDataSource[spectrumType])
+		switch(Private::SpectrumDataSource[spectrumType])
 		{
-			case Internal::ESpectrumDataSource::NumTypes: return vec4(1, 1, 1, 1);
-			case Internal::ESpectrumDataSource::Sample: return CalcSampleSpectrumColorByTime(spectrumType, route, time);
-			case Internal::ESpectrumDataSource::Event: return CalcEventSpectrumColorByTime(spectrumType, route, time);
+			case Private::ESpectrumDataSource::NumTypes: return vec4(1, 1, 1, 1);
+			case Private::ESpectrumDataSource::Sample: return CalcSampleSpectrumColorByTime(spectrumType, route, time);
+			case Private::ESpectrumDataSource::Event: return CalcEventSpectrumColorByTime(spectrumType, route, time);
 		}
 		error("Missing mapping for SpectrumDataSource: " + spectrumType);
 		return vec4(1, 1, 1, 1);
@@ -101,7 +101,7 @@ namespace RouteSpectrum
 	vec4 CalcEventSpectrumColorByTime(ESpectrumType spectrumType, Route::FRoute@ route, const int32 time)
 	{
 		Events::FNearbyEventDesc nearbyDesc;
-		int32 eventIdx = int32(Internal::EventType[spectrumType]);
+		int32 eventIdx = int32(Private::EventType[spectrumType]);
 		route.FindNearbyEventDescByTime(time, eventIdx , nearbyDesc);
 		return CalcEventSpectrumColor(spectrumType, route.GetPreviousEvent(eventIdx, nearbyDesc));
 	}
