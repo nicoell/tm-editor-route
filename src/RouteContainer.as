@@ -61,7 +61,6 @@ namespace RouteContainer
 			Routes.RemoveAt(uint32(i));
 			Table::VisibleRoutes.RemoveAt(uint32(i));
 			RouteContainer::Table::SelectedRouteIndex = i == 0 ? i : i - 1;
-
 			for (int32 k = i; k < int32(Routes.Length); k++)
 			{
 				Routes[k].ID = k;

@@ -12,7 +12,8 @@ set "name=!name: =!"
 set "version=!version: =!"
 
 rem Create the zip file
-set "zip_name=%name%_%version%.op"
+@REM set "zip_name=%name%_%version%.op"
+set "zip_name=%name%.op"
 
 rem Whitelisted folders and files
 set "whitelist="
