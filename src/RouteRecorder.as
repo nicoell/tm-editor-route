@@ -66,7 +66,7 @@ namespace RouteRecorder
 		State::bRequestDiscontinuousEntry = false;
 	}
 
-	bool ShouldRecordEntry(Samples::FSampleData new,Samples::FSampleData@ prev)
+	bool ShouldRecordEntry(Samples::FSampleData@ new, Samples::FSampleData@ prev)
 	{
 		return prev is null || 
 			new.bIsDiscontinuous != prev.bIsDiscontinuous ||

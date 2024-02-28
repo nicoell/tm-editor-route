@@ -54,6 +54,8 @@ namespace Samples
 
 	class FSampleData
 	{
+		FSampleData() {}
+		FSampleData(int) {}  // TODO: Unused explicit constructor to prevent AngelScript bug
 		int32 Time;
 		vec3 Position;
 		vec3 Velocity;

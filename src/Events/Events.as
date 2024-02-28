@@ -88,6 +88,7 @@ namespace Events
 
 	class IEvent
 	{
+		IEvent(int) {} // TODO: Unused explicit constructor to prevent AngelScript bug
 		int32 Time;
 		vec3 Position;
 		float Radius = 14.f;
