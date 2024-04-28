@@ -72,10 +72,19 @@ namespace RUtils
 		ss.x < Draw::GetWidth() && ss.y < Draw::GetHeight();
 	}
 
-	
-
 	int32 Lerp(const int32 a, const int32 b, const float t)
 	{
 		return int32(Math::Round(Math::Lerp(float(a), float(b), t)));
 	}
+#if ER_DEBUG
+	void DebugTrace(const string& in s){ trace(s); }
+	void DebugPrint(const string& in s){ print(s); }
+	void DebugWarn(const string& in s){ warn(s); }
+	void DebugError(const string& in s){ error(s); }
+#else
+	void DebugTrace(const string& in s){ }
+	void DebugPrint(const string& in s){ }
+	void DebugWarn(const string& in s){ }
+	void DebugError(const string& in s){ }
+#endif
 }

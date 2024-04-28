@@ -109,7 +109,7 @@ namespace Events
 
 		bool ShouldRecordEntry(IEvent@ other) const { return false;}
 		string GetUIValue() const { return RenderText; }
-		void OnRecorded() const { trace("Recorded Event: " + GetName()); }
+		void OnRecorded() const { RUtils::DebugTrace("Recorded Event: " + GetName()); }
 		/**
 		 * Render function is only called for visible points on the screen.
 		 * pos: 2D Screen Positon

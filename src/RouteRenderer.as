@@ -55,7 +55,7 @@ namespace RouteRenderer
 		}
 
 
-		if (bDebug) { trace("After Render: " + Time::get_Now());}
+		if (bDebug) { RUtils::DebugTrace("After Render: " + Time::get_Now());}
 
 		UpdateRenderTime(Time::get_Now() - startTime);
 

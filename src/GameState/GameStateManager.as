@@ -145,7 +145,7 @@ namespace GameState
 				}
 				else if (newNumRespawns < State::NumRespawns)
 				{
-					trace("Respawn Counter missed an update.");
+					RUtils::DebugTrace("Respawn Counter missed an update.");
 					State::NumRespawns = newNumRespawns;
 				}
 			}

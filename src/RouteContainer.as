@@ -42,11 +42,11 @@ namespace RouteContainer
 		if (!Routes.IsEmpty() && GetCurrentRoute().GetNumSamples() == 0)
 		{
 			GetCurrentRoute().StartTime = currentGameTime;
-			trace("Reuse current empty Route");
+			RUtils::DebugTrace("Reuse current empty Route");
 		}
 		else 
 		{
-			trace("Start a New Route");
+			RUtils::DebugTrace("Start a New Route");
 			auto newRoute = Route::FRoute();
 			newRoute.StartTime = currentGameTime;
 			newRoute.ID = Routes.Length;

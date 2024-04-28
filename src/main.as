@@ -21,7 +21,7 @@ void Main()
 			}
 			else
 			{
-				trace("Ready to record Routes but RouteContainer not setup!");
+				RUtils::DebugTrace("Ready to record Routes but RouteContainer not setup!");
 			}
 		}
 		if (GameState::IsReadyToRenderRoute())
