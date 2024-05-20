@@ -72,8 +72,8 @@ namespace EditorRouteUI
 			{
 				int32 sv = 0;
 				sv += PushStyleVarForced(UI::StyleVar::WindowPadding, DefaultWindowPadding);
-				int32 windowFlags = UI::WindowFlags::NoDocking | UI::WindowFlags::NoScrollbar | UI::WindowFlags::NoScrollWithMouse | UI::WindowFlags::AlwaysUseWindowPadding;
-				if (UI::BeginChild("Content", ContentWindowSize, false, windowFlags))
+				int32 windowFlags = UI::WindowFlags::NoDocking | UI::WindowFlags::NoScrollbar | UI::WindowFlags::NoScrollWithMouse;
+				if (UI::BeginChild("Content", ContentWindowSize, UI::ChildFlags::AlwaysUseWindowPadding, windowFlags))
 				{
 					// ---------------------------------------------------------------
 					// Only draw Content if there's enough space to at least hint there is a Table

@@ -23,8 +23,8 @@ namespace EditorRouteUI
 
 		vec2 timeControlChildSize = vec2(UI::GetWindowContentRegionWidth(), TimeControlChildHeight);
 
-		const int32 windowFlags = UI::WindowFlags::NoResize | UI::WindowFlags::NoScrollbar | UI::WindowFlags::NoScrollWithMouse | UI::WindowFlags::AlwaysUseWindowPadding;
-		if (UI::BeginChild("TimeControlChild", timeControlChildSize, false, windowFlags))
+		const int32 windowFlags = UI::WindowFlags::NoResize | UI::WindowFlags::NoScrollbar | UI::WindowFlags::NoScrollWithMouse;
+		if (UI::BeginChild("TimeControlChild", timeControlChildSize, UI::ChildFlags::AlwaysUseWindowPadding, windowFlags))
 		{
 			// ---------------------------------------------------------------
 			// Setup Style and calculate child regions
