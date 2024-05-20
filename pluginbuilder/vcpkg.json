@@ -1,0 +1,7 @@
+{
+	"name": "plugin-builder",
+	"version-string": "1.0.0",
+	"dependencies": [
+		"cpptoml"
+	]
+}
