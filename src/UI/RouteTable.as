@@ -5,12 +5,11 @@ namespace EditorRouteUI
 	// ---------------------------------------------------------------
 	// Route Table
 	// ---------------------------------------------------------------
-	void ShowRouteTable()
+	void DrawActiveRouteContent()
 	{
 		// ---------------------------------------------------------------
 		// Setup Style and calc var
-		int32 sv = 0;
-		
+
 		float paddingBetween;
 		{
 			int32 _sv = 0;
@@ -179,12 +178,7 @@ namespace EditorRouteUI
 								RouteContainer::Table::VisibleRoutes[row] = true;
 							}
 						}
-						if (UI::IsItemHovered())
-						{
-							UI::BeginTooltip();
-							UI::Text("Show All");
-							UI::EndTooltip();
-						}
+						RUtils::AddTooltipText("Select All");
 						UI::SameLine();
 						if (UI::Button(Icons::Kenney::Radio + "##None", buttonSize))
 						{
@@ -193,12 +187,7 @@ namespace EditorRouteUI
 								RouteContainer::Table::VisibleRoutes[row] = false;
 							}
 						}
-						if (UI::IsItemHovered())
-						{
-							UI::BeginTooltip();
-							UI::Text("Hide All");
-							UI::EndTooltip();
-						}
+						RUtils::AddTooltipText("Unselect All");
 						UI::SameLine();
 						if (UI::Button(Icons::Kenney::Adjust + "##Invert", buttonSize))
 						{
@@ -207,12 +196,7 @@ namespace EditorRouteUI
 								RouteContainer::Table::VisibleRoutes[row] = !RouteContainer::Table::VisibleRoutes[row];
 							}
 						}
-						if (UI::IsItemHovered())
-						{
-							UI::BeginTooltip();
-							UI::Text("Invert");
-							UI::EndTooltip();
-						}
+						RUtils::AddTooltipText("Invert Selection");
 
 						PopStyleVar(_sv);
 					}
@@ -240,17 +224,16 @@ namespace EditorRouteUI
 			if (UI::BeginChild("RecordedRoutesDetails", detailsChildSize, false, windowFlags))
 			{
 				// BeginTabBar doesn't return bool for whatever reason?
-				UI::BeginTabBar("DetailsTabCategory", UI::TabBarFlags::FittingPolicyScroll | UI::TabBarFlags::NoCloseWithMiddleMouseButton);
+				UI::BeginTabBar("DetailsTabCategoryv2", UI::TabBarFlags::FittingPolicyScroll | UI::TabBarFlags::NoCloseWithMiddleMouseButton);
 				{
 					TabGeneral::Draw();
-					TabDisplay::Draw();
+					TabIO::Draw();
+					TabSettings::Draw();
 					UI::EndTabBar();
 				}
 			}
 			UI::EndChild();
 			PopStyleColor(sc);
 		}
-		
-		PopStyleVar(sv);
 	}
 }

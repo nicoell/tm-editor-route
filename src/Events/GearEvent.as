@@ -1,23 +1,34 @@
 namespace Events
 {
-	[Setting category="Display" name="Render Gear Events"]
-	bool Setting_RenderGearEvents = true;
-
-	class GearEvent : IEvent
+	class FGearEvent : IEvent
 	{
 		int32 Gear;
 
 		void Record() override
 		{
 			Gear = RecordCtx::Player.EngineCurGear;
-			Color = vec3(0.3, 0.3, 0.3);
-			RenderText = "" + Icons::Cog + "" + Gear;
 		}
 
 		bool ShouldRecordEntry(IEvent@ other) const override
 		{
-			auto otherTyped = cast<GearEvent>(other);
+			auto otherTyped = cast<FGearEvent>(other);
 			return otherTyped is null || otherTyped.Gear != Gear;
+		}
+
+		string GetUIValue() const override { return Icons::Cog + Gear; }
+		vec3 GetColor() const override { return vec3(0.3, 0.3, 0.3); }
+
+		FArchive@ SaveArchive() override
+		{
+			FArchive@ ar = IEvent::SaveArchive();
+			ar.Set('g', Gear);
+			return ar;
+		}
+
+		void LoadArchive(FArchive &in ar) override
+		{
+			IEvent::LoadArchive(ar);
+			Gear = ar.Get('g');
 		}
 
 		// ---------------------------------------------------------------

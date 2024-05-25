@@ -21,9 +21,14 @@ namespace NumericLimits
 	const float FLT_LOWEST = -FLT_MAX;
 	const float FLT_MIN = 1.175494351e-38;
 	const float FLT_EPSILON = 1.192092896e-07;
+	const float FLT_NAN = (vec2(0.) / vec2(0.)).x;
+	const float FLT_INF = (vec2(1.) / vec2(0.)).x;
 
 	const double DBL_MAX = 1.7976931348623158e+308;
 	const double DBL_LOWEST = -DBL_MAX;
 	const double DBL_MIN = 2.2250738585072014e-308;
 	const double DBL_EPSILON = 2.2204460492503131e-016;
+	const double DBL_NAN = (vec2(0.) / vec2(0.)).x;
+	const double DBL_INF = (vec2(1.) / vec2(0.)).x;
+
 }

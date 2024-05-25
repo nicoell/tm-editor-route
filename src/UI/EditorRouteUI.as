@@ -83,12 +83,20 @@ namespace EditorRouteUI
 						// Show Route Table if we have Routes
 						if (RouteContainer::HasRoutes())
 						{
-							ShowRouteTable();
+							DrawActiveRouteContent();
 						}
 						else
 						{
 							// Show Info if no Routes are available yet
-							UI::Text(Icons::Kenney::Info + "Enter Test Mode or Validate the Track to record routes.");
+							UI::SeparatorText(Icons::Kenney::Info + "Import " + Icons::SignIn + " or record Routes in Test Mode / Track Validation.");
+
+							// BeginTabBar doesn't return bool for whatever reason?
+							UI::BeginTabBar("NoRoutesTabCategory", UI::TabBarFlags::FittingPolicyScroll | UI::TabBarFlags::NoCloseWithMiddleMouseButton);
+							{
+								TabIO::Draw();
+								TabSettings::Draw();
+								UI::EndTabBar();
+							}
 						}
 					}
 				}
@@ -108,7 +116,7 @@ namespace EditorRouteUI
 			// In any case, draw the Time Controls even if no Routes are available
 			ShowTimeControl();
 
-			RouteContainer::DeleteRoute(RouteIdxToDelete);
+			if (RouteIdxToDelete >= 0) { RouteContainer::DeleteRoute(RouteIdxToDelete); }
 			SelectRoute(RouteContainer::Table::SelectedRouteIndex, CurrentSpectrumType);
 		}
 		UI::End();
@@ -117,10 +125,14 @@ namespace EditorRouteUI
 		PopStyleVar(numStyleVarColors.x);
 	}
 
-
+	vec4 DefaultSliderGrab;
+	vec4 DefaultSliderGrabActive;
 	int2 PushStyle()
 	{
 		UI::SetNextWindowSize(int32(WindowSize.x), int32(WindowSize.y), UI::Cond::FirstUseEver);
+
+		DefaultSliderGrab = (bEnableEditorRouteStyle) ? vec4(233., 196., 1., 32.)/255. : UI::GetStyleColor(UI::Col::SliderGrab);
+		DefaultSliderGrabActive =(bEnableEditorRouteStyle) ? vec4(233., 196., 1., 228.)/255. : UI::GetStyleColor(UI::Col::SliderGrabActive);
 
 		int32 sv = 0; int32 sc = 0;
 

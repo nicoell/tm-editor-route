@@ -1,3 +1,4 @@
+
 namespace Samples
 {
 	enum EPropType
@@ -55,7 +56,6 @@ namespace Samples
 	class FSampleData
 	{
 		FSampleData() {}
-		FSampleData(int) {}  // TODO: Unused explicit constructor to prevent AngelScript bug
 		int32 Time;
 		vec3 Position;
 		vec3 Velocity;
@@ -82,6 +82,32 @@ namespace Samples
 			}
             error("Missing mapping from PropType to SpectrumType for PropType: " + i);
 			return Private::FPropInt32(0);
+		}
+
+		FArchive@ SaveArchive()
+		{
+			FArchive ar (Json::Object());
+			ar.Set('t', FArchive(Time));
+			ar.Set('p', FArchive(Position));
+			ar.Set('v', FArchive(Velocity));
+			ar.Set('q', FArchive(Rotation));
+			ar.Set('bd', FArchive(bIsDiscontinuous));
+			ar.Set('ft', FArchive(AvgFrametime));
+			// [New-PropType]: Implement here for new PropTypes
+			return ar;
+		}
+
+		void LoadArchive(FArchive &in ar)
+		{
+			Time = ar.Get('t');
+			Position = ar.Get('p');
+			Velocity = ar.Get('v');
+			Rotation = ar.Get('q');
+			bIsDiscontinuous = ar.Get('bd');
+			AvgFrametime = ar.Get('ft');
+			// [New-PropType]: Implement here for new PropTypes
+			//  - You MUST set fallback value to support older saves!
+			// e.g. Velocity = ar.Get('v', FArchive(vec3(0)));
 		}
 	}
 

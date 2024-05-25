@@ -189,7 +189,7 @@ namespace RouteSpectrum
 	// ---------------------------------------------------------------
 	vec4 CalcSpectrumColor_Gear(Events::IEvent@ event)
 	{
-		const int32 v = (cast<Events::GearEvent>(event) is null) ? 0 : (cast<Events::GearEvent>(event).Gear);
+		const int32 v = (cast<Events::FGearEvent>(event) is null) ? 0 : (cast<Events::FGearEvent>(event).Gear);
 		return vec4(CosPalette::Col(v, CurrentPalette, 0.2), 1); // 0.2 due to MaxGear 5
 	}
 

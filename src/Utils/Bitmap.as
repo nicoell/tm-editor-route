@@ -323,7 +323,7 @@ class Bitmap
 		int32 sizeInPx = Header.GetWidth() * Header.GetHeight();
 		if (Header.GetBitsPerPixel() == 16)
 		{
-			for(int i = 0; i < sizeInPx; i++)
+			for(int32 i = 0; i < sizeInPx; i++)
 			{
 				uint8 rg = Data.ReadUInt8();
 				uint8 ba = Data.ReadUInt8();
@@ -337,7 +337,7 @@ class Bitmap
 		}
 		else 
 		{
-			for(int i = 0; i < sizeInPx; i++)
+			for(int32 i = 0; i < sizeInPx; i++)
 			{
 				ret += "[" + XPos + "][" + YPos + "] = rgba (" + Data.ReadUInt8() + ", " + Data.ReadUInt8() + ", " + Data.ReadUInt8() + ", " + Data.ReadUInt8() + ")\n";
 				AdvancePos();
@@ -356,7 +356,7 @@ class Bitmap
 		int32 sizeInBytes = RowSizeByte * Header.GetHeight();
 		if (Header.GetBitsPerPixel() == 16)
 		{
-			for(int i = 0; i < sizeInBytes; i++)
+			for(int32 i = 0; i < sizeInBytes; i++)
 			{
 				uint8 data = Data.ReadUInt8();
 				ret += Text::Format("%01X", data & 0xF);
@@ -365,7 +365,7 @@ class Bitmap
 		}
 		else
 		{
-			for(int i = 0; i < sizeInBytes; i++)
+			for(int32 i = 0; i < sizeInBytes; i++)
 			{
 				ret += Text::Format("%02X", Data.ReadUInt8()) + " ";
 			}

@@ -2,30 +2,128 @@ namespace Route
 {
 	class FRoute
 	{
+
 		FRoute()
+		{
+			SetupEvents();
+		}
+
+		FRoute(FArchive &in ar)
+		{
+			SetupEvents();
+			if (ar.Data.GetType() != Json::Type::Object) { throw("Json Archive is not an Object."); }
+
+			{
+				// Load Samples
+				// And pull out bIsDiscontinuous into array for increased rendering performance
+				auto arArr = ar.Get('samples');
+				SampleDataArray.Reserve(arArr.Length);
+				bIsDiscontinuousArray.Reserve(arArr.Length);
+				for(uint32 i = 0; i < arArr.Length; i++)
+				{
+					SampleDataArray.InsertLast(Samples::FSampleData());
+					SampleDataArray[i].LoadArchive(arArr.Get(i));
+					bIsDiscontinuousArray.InsertLast(SampleDataArray[i].bIsDiscontinuous);
+				}
+			}
+			{
+				// Load Events
+				auto arEvents = ar.Get('events');
+				for(int32 eventTypeIdx = 0; eventTypeIdx < Events::EventType::NumTypes; eventTypeIdx++)
+				{
+					if (arEvents.HasKey(Events::ToPersistentTypeString(eventTypeIdx)))
+					{
+						auto eventType = Events::EventType(eventTypeIdx);
+						if (eventType != Events::EventType::None)
+						{
+							auto arTypeEvents = arEvents.Get(Events::ToPersistentTypeString(eventTypeIdx));
+							const int32 numTypeEvents = arTypeEvents.Length;
+							if (numTypeEvents > 0)
+							{
+								for(int32 eventIdx = 0; eventIdx < numTypeEvents; eventIdx++)
+								{
+									Events::CtorCtx::bIsCDO = true;
+									Events[eventTypeIdx].InsertLast(Events::CreateEvent(eventType));
+									Events::CtorCtx::bIsCDO = false;
+									Events[eventTypeIdx][eventIdx].LoadArchive(arTypeEvents.Get(eventIdx));
+								}
+								RUtils::DebugTrace("Loaded " + numTypeEvents + " Events for EventTypeIdx: " + eventTypeIdx);
+							}
+							else
+							{
+								RUtils::DebugTrace("Zero Entries for EventTypeIdx: " + eventTypeIdx);
+							}
+						}
+						else
+						{
+							RUtils::DebugTrace("Imported Route contains unsupported Events. Events not loaded.");
+						}
+					} else
+					{
+						RUtils::DebugTrace("No Entries for EventTypeIdx: " + eventTypeIdx);
+					}
+				}
+			}
+		}
+
+		void SetupEvents() 
 		{
 			Events.Reserve(Events::EventType::NumTypes);
 			NearbyEventDescs.Reserve(Events::EventType::NumTypes);
-			for(int i = 0; i < Events::EventType::NumTypes; i++)
+			for(int32 i = 0; i < Events::EventType::NumTypes; i++)
 			{
 				Events.InsertLast(array<Events::IEvent@>());
 				NearbyEventDescs.InsertLast(Events::FNearbyEventDesc());
 			}
 		}
 
+		FArchive@ SaveArchive()
+		{
+			FArchive ar(Json::Object());
+			// Save Samples
+			{
+				FArchive arSamples(Json::Array());
+				for(uint32 i = 0; i < SampleDataArray.Length; i++)
+				{
+					arSamples.Add(SampleDataArray[i].SaveArchive());
+				}
+				ar.Set('samples', arSamples);
+			}
+			// Save Events
+			{
+				FArchive arEvents(Json::Object());
+				for(int32 eventTypeIdx = 0; eventTypeIdx < Events::EventType::NumTypes; eventTypeIdx++)
+				{
+					const int32 numTypeEvents = Events[eventTypeIdx].Length;
+					if (numTypeEvents > 0)
+					{
+						FArchive arTypeEvents(Json::Array());
+						for(int32 eventIdx = 0; eventIdx < numTypeEvents; eventIdx++)
+						{
+							arTypeEvents.Add(Events[eventTypeIdx][eventIdx].SaveArchive());
+						}
+						arEvents.Set(Events::ToPersistentTypeString(eventTypeIdx), arTypeEvents);
+					}
+				}
+				ar.Set('events', arEvents);
+			}
+			return ar;
+		}
+
+		// ---------------------------------------------------------------
+		// Serialized Members
+		// ---------------------------------------------------------------
+		array<Samples::FSampleData> SampleDataArray;
+		array<array<Events::IEvent@>> Events;
+
 		// ---------------------------------------------------------------
 		// Members
 		// ---------------------------------------------------------------
-		uint32 ID;
-		int32 StartTime;
-
-		array<Samples::FSampleData> SampleDataArray;
-		array<vec3> Positions; // Pulled out Positions for faster Line Rendering
+		uint32 ID = 0; // Don't serialize?
 		array<bool> bIsDiscontinuousArray;
 		int32 BestSampleIndex = 0;
 		Samples::FSampleData CurrentSample; // Interpolated Sample at Current Time
-		
-		array<array<Events::IEvent@>> Events;
+
 		array<Events::FNearbyEventDesc> NearbyEventDescs;
 		
 		// Stats
@@ -240,7 +338,7 @@ namespace Route
 			return LerpSampleByTime(RUtils::Lerp(GetMinTime(), GetMaxTime(), t));
 		}
 
-		uint32 BinarySearchSamplesByTime(const int32 time, uint &out nextBestIdx, float &out ratio)
+		uint32 BinarySearchSamplesByTime(const int32 time, uint32 &out nextBestIdx, float &out ratio)
 		{
 			ratio = 0.;
 			nextBestIdx = 0;

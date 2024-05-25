@@ -38,20 +38,32 @@ namespace RouteContainer
 
 	void AdvanceRoute()
 	{
-		int32 currentGameTime = RouteTime::GetGameTime();
+		int32 currentGameTime = TimeUtils::GetGameTime();
 		if (!Routes.IsEmpty() && GetCurrentRoute().GetNumSamples() == 0)
 		{
-			GetCurrentRoute().StartTime = currentGameTime;
 			RUtils::DebugTrace("Reuse current empty Route");
+			RouteRecorder::State::RecordStarttime = currentGameTime;
 		}
 		else 
 		{
 			RUtils::DebugTrace("Start a New Route");
 			auto newRoute = Route::FRoute();
-			newRoute.StartTime = currentGameTime;
+			RouteRecorder::State::RecordStarttime = currentGameTime;
 			newRoute.ID = Routes.Length;
 			Routes.InsertLast(newRoute);
 		}
+	}
+
+	Route::FRoute@ GetRoute(uint32 idx) 
+	{
+		if (idx < Routes.Length) { return Routes[idx]; }
+		return null;
+	}
+
+	void AddRoute(Route::FRoute& route)
+	{
+		route.ID = Routes.Length;
+		Routes.InsertLast(route);
 	}
 
 	void DeleteRoute(const int32 i)
@@ -68,23 +80,27 @@ namespace RouteContainer
 			
 			for (int32 k = 0; k < int32(Table::OrderedRouteIndices.Length); k++)
 			{
-				if (Table::OrderedRouteIndices[k] == i) 
+				if (Table::OrderedRouteIndices[k] == uint32(i)) 
 				{
 					Table::OrderedRouteIndices.RemoveAt(k);
 					k--;
 				}
-				else if (Table::OrderedRouteIndices[k] > i) 
+				else if (Table::OrderedRouteIndices[k] > uint32(i)) 
 				{
 					Table::OrderedRouteIndices[k]--;
 				}
 			}
+		
+			RouteContainer::CacheStats();
+			RouteTime::Init();
+			RouteSpectrum::ResetRuntime();
+			EditorRouteUI::TabGeneral::Ctx::bForceReselect = true;
 		}
-
-		RouteContainer::CacheStats();
 	}
 
 	void FinalizeRoutes()
 	{
+		Table::Reset();
 		for (int32 i = 0; i < int32(Routes.Length); i++)
 		{
 			if (Routes[i].GetNumSamples() == 0)

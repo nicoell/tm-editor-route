@@ -26,10 +26,9 @@ namespace RouteTime
 		UpdateTime(0., true);
 	}
 
-	int GetGameTime() { return GetApp().Network.PlaygroundClientScriptAPI.GameTime; }
 	void SetTimeRange(vec2 timeRange , bool markDirty = true) { TimeRange = timeRange; if (markDirty) { UpdateTime(0); } }
 	void SetTime(double timeInMs, bool markDirty = true) { Time = timeInMs; if (markDirty) { UpdateTime(0); } }
-	void SetTime(int timeInt, bool markDirty = true) { SetTime(RUtils::InMS(timeInt), markDirty); }
+	void SetTime(int32 timeInt, bool markDirty = true) { SetTime(RUtils::InMS(timeInt), markDirty); }
 	void SetTimePercentage(float percentage, bool markDirty = true) { Time = MinTime + Duration * percentage;  if (markDirty) { UpdateTime(0); } }
 	double GetCurrentMinTime() { return RUtils::Clamp(MinTime + TimeRange.x * Duration, MinTime, MaxTime); }
 	double GetCurrentMaxTime() { return RUtils::Clamp(MinTime + TimeRange.y * Duration, MinTime, MaxTime); }
@@ -39,7 +38,7 @@ namespace RouteTime
 	double GetTimeByPercentage(const float t) { return MinTime + t * Duration; }
 
 	bool IsTimeInRange(double timeInMs) { return RUtils::IsInRange(timeInMs, GetCurrentMinTime(), GetCurrentMaxTime()); }
-	bool IsTimeInRange(int timeInt) { return IsTimeInRange(RUtils::InMS(timeInt)); }
+	bool IsTimeInRange(int32 timeInt) { return IsTimeInRange(RUtils::InMS(timeInt)); }
 
 	void UpdateTime(float dt, bool bForceUpdate = false)
 	{

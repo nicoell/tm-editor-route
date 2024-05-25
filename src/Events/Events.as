@@ -7,6 +7,46 @@ namespace Events
 		WheelsContactEvent,
 		NumTypes
 	};
+	
+	enum PersistentEventType
+	{
+		Invalid = -1,
+		GearEvent = 0,
+		WheelsContactEvent = 1,
+		// Persistent Event Type Values never change and will be used for versioning
+	};
+
+	EventType FromPersistentType(int32 persistentTypeIdx)
+	{
+		return FromPersistentType(PersistentEventType(persistentTypeIdx));
+	}
+	
+	Events::EventType FromPersistentType(PersistentEventType type)
+	{
+		switch(type)
+		{
+			case PersistentEventType::GearEvent: return Events::EventType::GearEvent;
+			case PersistentEventType::WheelsContactEvent: return Events::EventType::WheelsContactEvent;
+			default: return EventType::None;
+		}
+	}
+
+	PersistentEventType ToPersistentType(int32 typeIdx)
+	{
+		return ToPersistentType(Events::EventType(typeIdx));
+	}
+	
+	PersistentEventType ToPersistentType(Events::EventType type)
+	{
+		switch(type)
+		{
+			case EventType::GearEvent: { return PersistentEventType::GearEvent; }
+			case EventType::WheelsContactEvent: { return PersistentEventType::WheelsContactEvent; }
+			default: return PersistentEventType::Invalid;
+		}
+	}
+	string ToPersistentTypeString(int32 typeIdx) { return "" + ToPersistentType(typeIdx); }
+	string ToPersistentTypeString(Events::EventType type) { return "" + ToPersistentType(type); }
 
 	// ---------------------------------------------------------------
 	// Event Class Default Objects
@@ -61,8 +101,8 @@ namespace Events
 	{
 		switch(type)
 		{
-			case EventType::GearEvent: { return GearEvent(); }
-			case EventType::WheelsContactEvent: { return WheelsContactEvent(); }
+			case EventType::GearEvent: { return FGearEvent(); }
+			case EventType::WheelsContactEvent: { return FWheelsContactEvent(); }
 			default: return null;
 		}
 	}
@@ -88,13 +128,16 @@ namespace Events
 
 	class IEvent
 	{
-		IEvent(int) {} // TODO: Unused explicit constructor to prevent AngelScript bug
+		// ---------------------------------------------------------------
+		// Serialized Members
+		// ---------------------------------------------------------------
 		int32 Time;
 		vec3 Position;
-		float Radius = 14.f;
-		string RenderText = "";
+
+		// ---------------------------------------------------------------
+		// Members
+		// ---------------------------------------------------------------
 		bool bIsHovered = false;
-		vec3 Color = vec3(0.2, 0.2, 0.2);
 
 		IEvent()
 		{
@@ -105,10 +148,13 @@ namespace Events
 			}
 		}
 
+		string GetUIValue() const { return "Event"; }
+		float GetRadius() const { return 14.f; }
+		vec3 GetColor() const { return vec3(0.2, 0.2, 0.2); }
+
 		void Record() {}
 
 		bool ShouldRecordEntry(IEvent@ other) const { return false;}
-		string GetUIValue() const { return RenderText; }
 		void OnRecorded() const { RUtils::DebugTrace("Recorded Event: " + GetName()); }
 		/**
 		 * Render function is only called for visible points on the screen.
@@ -117,7 +163,7 @@ namespace Events
 		 */
 		void Render(vec2 screenPos, bool bIsRouteSelected) 
 		{
-			const float radius = Radius * Setting_EventScale;
+			const float radius = GetRadius() * Setting_EventScale;
 			const float dotRadius = 3.f * Setting_EventScale;
 
 			vec2 offsetPos = vec2(screenPos.x, screenPos.y - radius - dotRadius);
@@ -125,9 +171,11 @@ namespace Events
 		
 			float alphaMod = /* bIsEventElapsed */ Time < RUtils::AsInt(RouteTime::Time) ? Setting_ElapsedEventOpacityModifier : 1.f;
 
+			vec3 color = GetColor();
+
 			nvg::StrokeWidth(bIsRouteSelected ? 1.5 : 1.);
-			nvg::StrokeColor(vec4(Color * 0.2, (bIsRouteSelected ? 0.8 : 0.4)) * alphaMod);
-			nvg::FillColor(vec4(Color, (bIsHovered ? 1. : .8) * alphaMod));
+			nvg::StrokeColor(vec4(color * 0.2, (bIsRouteSelected ? 0.8 : 0.4)) * alphaMod);
+			nvg::FillColor(vec4(color, (bIsHovered ? 1. : .8) * alphaMod));
 
 			// ---------------------------------------------------------------
 			// Dot
@@ -145,12 +193,12 @@ namespace Events
 
 			// ---------------------------------------------------------------
 			// Event Text
-			nvg::FillColor(vec4(ContrastColor::Get(Color), (bIsHovered ? 0.75 : 1.0) * alphaMod));
+			nvg::FillColor(vec4(ContrastColor::Get(color), (bIsHovered ? 0.75 : 1.0) * alphaMod));
 			nvg::BeginPath();
 			nvg::FontSize(16 * Setting_EventScale);
 			nvg::FontFace(Fonts::nvg(Fonts::Type::DroidSansBold));
 			nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
-			nvg::Text(offsetPos, RenderText);
+			nvg::Text(offsetPos, GetUIValue());
 
 			// ---------------------------------------------------------------
 			// Click handling
@@ -164,6 +212,20 @@ namespace Events
 		void Reset()
 		{
 			bIsHovered = false;
+		}
+
+		FArchive@ SaveArchive()
+		{
+			FArchive ar(Json::Object());
+			ar.Set('t', FArchive(Time));
+			ar.Set('p', FArchive(Position));
+			return ar;
+		}
+
+		void LoadArchive(FArchive &in ar)
+		{
+			Time = ar.Get('t');
+			Position = ar.Get('p');
 		}
 
 		// ---------------------------------------------------------------

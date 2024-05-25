@@ -22,6 +22,6 @@ namespace EditorRouteUI
 	}
 	int32 PushStyleVarForced(UI::StyleVar var, const vec2&in value) { return PushStyleVar(var, value, true); }
 
-	void PopStyleColor(int count = 1) { if (count > 0) { UI::PopStyleColor(count); }}
-	void PopStyleVar(int count = 1) { if (count > 0) { UI::PopStyleVar(count); }}
+	void PopStyleColor(int32 count = 1) { if (count > 0) { UI::PopStyleColor(count); }}
+	void PopStyleVar(int32 count = 1) { if (count > 0) { UI::PopStyleVar(count); }}
 }

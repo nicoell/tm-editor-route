@@ -5,6 +5,8 @@
 
 *.vcxproj
 *.vcxproj.filters
+**manual.html
+*.args.json
 
 # User-specific files
 *.rsuser

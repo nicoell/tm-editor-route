@@ -2,9 +2,10 @@
 name = "Editor Route"
 author = "Wambo"
 category = "Map Editor"
-version = "0.9.3.3 Beta"
+version = "0.9.4 Beta"
 siteid = 489
 
 [script]
+timeout = 0
 defines = ["ER_DEBUG"]
 dependencies = [ "Camera" ]

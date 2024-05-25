@@ -1,8 +1,5 @@
 // TODO: These could actually be done with a proper callback system using fundefs
 
-[Setting category="Recorder" name="Clear trails on Play"]
-bool Setting_Recorder_ClearTrailsOnPlay = true;
-
 namespace GameState
 {
 	void OnEditorEnter()

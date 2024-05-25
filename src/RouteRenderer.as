@@ -1,3 +1,4 @@
+
 namespace RouteRenderer
 {
 
@@ -106,46 +107,56 @@ namespace RouteRenderer
 		Stats::RenderTime /= Stats::Private::MovWindowSize;
 	}
 
-	void RenderRouteLine(Route::FRoute@ route, const int32 startIdx, const int32 count)
+	void RenderRouteLine(const Route::FRoute@ route, const int32 startIdx, const int32 count)
 	{
 		// Let nanovg handle scale and transform for free
 		nvg::Scale(CameraExt::ScaleToDisplay);
 		nvg::Translate(CameraExt::DisplayPos);
 
 		// Pull projection matrix into local register
-		mat4 proj = Camera::GetProjectionMatrix();
-		// New variables in loop scope are expensive. Define them outside the loop.
-		vec4 pclip; 
-		vec3 p;
+		const mat4 proj = Camera::GetProjectionMatrix();
+		// Extracting matrix elements into individual floats
+		const float xx = proj.xx, xy = proj.xy, xw = proj.xw;
+		const float yx = proj.yx, yy = proj.yy, yw = proj.yw;
+		const float zx = proj.zx, zy = proj.zy, zw = proj.zw;
+		const float wx = proj.tx, wy = proj.ty, ww = proj.tw;
+		// New vectors in loop scope are expensive. Define them outside the loop.
+		vec3 p; 
 		bool bIsLineStart = true;
 
 		const uint32 numPositions = startIdx + count;
 
+		const auto bIsDiscontinuousArrayCopy = route.bIsDiscontinuousArray;
+		const auto@ sampleArray = @route.SampleDataArray;
+
 		nvg::BeginPath();
 		for (uint32 i = startIdx; i < numPositions; i++) 
 		{
-			if (route.bIsDiscontinuousArray[i])
+			if (bIsDiscontinuousArrayCopy[i])
 			{
 				bIsLineStart = true; i++;
 			}
 			else
 			{
-				// Load variable from array to local register to speed up matrix multiplication (since mat4 opMul takes  reference)
-				p = route.Positions[i];
-				
-				pclip = proj * p;
-				if (pclip.w >= 0) 
+				// Load vector from array to local register
+				p = sampleArray[i].Position;
+
+				if ((xw * p.x + yw * p.y + zw * p.z + ww) >= 0) 
 				{
 					bIsLineStart = true; 
 				}
 				else if (bIsLineStart)
 				{
-					nvg::MoveTo(vec2(pclip.x / pclip.w + 1, pclip.y / pclip.w + 1));
+					nvg::MoveTo(vec2(
+						(xx * p.x + yx * p.y + zx * p.z + wx) / (xw * p.x + yw * p.y + zw * p.z + ww) + 1,
+						(xy * p.x + yy * p.y + zy * p.z + wy) / (xw * p.x + yw * p.y + zw * p.z + ww) + 1));
 					bIsLineStart = false;
 				}
 				else 
 				{
-					nvg::LineTo(vec2(pclip.x / pclip.w + 1, pclip.y / pclip.w + 1)); 
+					nvg::LineTo(vec2(
+						(xx * p.x + yx * p.y + zx * p.z + wx) / (xw * p.x + yw * p.y + zw * p.z + ww) + 1,
+						(xy * p.x + yy * p.y + zy * p.z + wy) / (xw * p.x + yw * p.y + zw * p.z + ww) + 1)); 
 				}
 			}
 		}

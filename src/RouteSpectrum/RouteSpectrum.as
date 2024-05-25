@@ -1,17 +1,30 @@
 namespace RouteSpectrum
 {
+	#define SPECTRUMPALETTE(ETYPE) \
+        ETYPE(Rainbow),   \
+        ETYPE(DesertSky),  \
+        ETYPE(Cream),   \
+        ETYPE(Phaser),  \
+        ETYPE(Variety),  \
+        ETYPE(Eighties),  \
+        ETYPE(Cactusflower),  \
+        ETYPE(Spectrum)
 
-	enum ESpectrumPalette
-	{
-		Rainbow = 0,
-		DesertSky,
-		Cream,
-		Phaser,
-		Variety,
-		Eighties,
-		Cactusflower,
-		Spectrum
-	}
+	#define GENERATE_ENUM(ENUM) ENUM
+	#define GENERATE_STRING(STRING) #STRING
+
+	enum ESpectrumPalette 
+	{ 
+		SPECTRUMPALETTE(GENERATE_ENUM) 
+	};
+	array<string> SpectrumPaletteNames =
+	{ 
+		SPECTRUMPALETTE(GENERATE_STRING) 
+	};
+
+	#undef SPECTRUMPALETTE
+	#undef GENERATE_ENUM
+	#undef GENERATE_STRING
 
 	// ---------------------------------------------------------------
 

@@ -6,6 +6,7 @@ void Main()
 #if ER_DEBUG
 	RouteRecorder::AddDebugData(7);
 	GameState::InitRuntime();
+	Path::Tests::RunTests();
 #endif
 
 	while (true) 
