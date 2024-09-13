@@ -2,7 +2,7 @@
 name = "Editor Route"
 author = "Wambo"
 category = "Map Editor"
-version = "0.9.4 Beta"
+version = "0.9.5 Beta"
 siteid = 489
 
 [script]
