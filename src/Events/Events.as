@@ -180,7 +180,7 @@ namespace Events
 			// ---------------------------------------------------------------
 			// Dot
 			nvg::BeginPath();
-			nvg::RoundedRectVarying(screenPos.x - dotRadius, screenPos.y - dotRadius, 2*dotRadius, 2*dotRadius, 0, 0, dotRadius, dotRadius);
+			nvg::RoundedRect(screenPos.x - dotRadius, screenPos.y - dotRadius, 2*dotRadius, 2*dotRadius, dotRadius);
 			nvg::Fill();
 			nvg::Stroke();
 
