@@ -76,8 +76,8 @@ namespace EditorRouteUI
 			private float ClampValueMax(float _value, float _maxValue) { return Math::Min(_value, _maxValue); }
 			private double ClampValueMax(double _value, double _maxValue) { return _value > _maxValue ? _maxValue : _value; }
 			private vec2 ClampValueMax(vec2 &in _value, float _maxValue) { return vec2(Math::Min(_value.x, _maxValue), Math::Min(_value.y, _maxValue)); }
-			private vec3 ClampValueMax(vec3 &in _value, float _maxValue) { return vec3(Math::Min(_value.x, _maxValue), Math::Min(_value.y, _maxValue), Math::Max(_value.z, _maxValue)); }
-			private vec4 ClampValueMax(vec4 &in _value, float _maxValue) { return vec4(Math::Min(_value.x, _maxValue), Math::Min(_value.y, _maxValue), Math::Max(_value.z, _maxValue), Math::Max(_value.w, _maxValue)); }
+			private vec3 ClampValueMax(vec3 &in _value, float _maxValue) { return vec3(Math::Min(_value.x, _maxValue), Math::Min(_value.y, _maxValue), Math::Min(_value.z, _maxValue)); }
+			private vec4 ClampValueMax(vec4 &in _value, float _maxValue) { return vec4(Math::Min(_value.x, _maxValue), Math::Min(_value.y, _maxValue), Math::Min(_value.z, _maxValue), Math::Min(_value.w, _maxValue)); }
 			void ClampValue() override
 			{
 				if (bShouldClampMin) { Value = ClampValueMin(Value, MinValue); }
