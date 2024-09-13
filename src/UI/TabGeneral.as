@@ -165,6 +165,41 @@ namespace EditorRouteUI
 			FWheelsContactItem() { EventType = Events::EventType::WheelsContactEvent; }
 			Events::IEvent@ GetEvent() const override { return GetCurrentEvent(); }
 		}
+		// ---------------------------------------------------------------
+		// VehicleType
+		class FVehicleTypeItemBase : FEventItemBase
+		{
+			FVehicleTypeItemBase() { EventType = Events::EventType::VehicleTypeEvent; }
+			Events::FVehicleTypeEvent@ GetVehicleTypeEvent() const { return cast<Events::FVehicleTypeEvent>(GetEvent()); }
+			RouteSpectrum::ESpectrumType GetSpectrum() const override { return RouteSpectrum::ESpectrumType::VehicleType; }
+			vec4 GetSpectrumColor() const override { return GetVehicleTypeEvent() !is null ? RouteSpectrum::CalcSpectrumColor_VehicleType(GetVehicleTypeEvent()) : FItemBase::GetSpectrumColor(); }
+			string GetActionName() const override { return Strings::GotoTime; }
+			void RunAction() const override 
+			{
+				if (GetVehicleTypeEvent() !is null) { RouteTime::SetTime(GetVehicleTypeEvent().Time); }
+			}
+		}
+		// Current VehicleType
+		class FCurrentVehicleTypeItem : FVehicleTypeItemBase
+		{
+			string GetName() const override { return "VehicleType"; }
+			string GetActionName() const override { return ""; } // Disable Action for Current VehicleType
+			Events::IEvent@ GetEvent() const override { return GetCurrentEvent(); }
+		}
+		// Previous VehicleType
+		class FPrevVehicleTypeItem : FVehicleTypeItemBase
+		{
+			string GetName() const override { return "Previous VehicleType"; }
+			Events::IEvent@ GetEvent() const override { return GetPreviousEvent(); }
+			string GetActionName() const override { return Strings::GotoPrev; }
+		}
+		// Next VehicleType
+		class FNextVehicleTypeItem : FVehicleTypeItemBase
+		{
+			string GetName() const override { return "Next VehicleType"; }
+			Events::IEvent@ GetEvent() const override { return GetNextEvent(); }
+			string GetActionName() const override { return Strings::GotoNext; }
+		}
 
 		namespace Strings
 		{
@@ -185,13 +220,16 @@ namespace EditorRouteUI
 		{
 			if (RowItems.IsEmpty())
 			{
-				RowItems.Reserve(11);
+				RowItems.Reserve(14);
 				RowItems.InsertLast(FDurationItem());
 				RowItems.InsertLast(FCurrentSpeedItem());
 				RowItems.InsertLast(FMaxSpeedItem());
 				RowItems.InsertLast(FPrevGearItem());
 				RowItems.InsertLast(FCurrentGearItem());
 				RowItems.InsertLast(FNextGearItem());
+				RowItems.InsertLast(FPrevVehicleTypeItem());
+				RowItems.InsertLast(FCurrentVehicleTypeItem());
+				RowItems.InsertLast(FNextVehicleTypeItem());
 				RowItems.InsertLast(FCurrentPositionItem());
 				RowItems.InsertLast(FCurrentAltitudeItem());
 				RowItems.InsertLast(FMaxAltitudeItem());

@@ -18,6 +18,7 @@ namespace RouteRecorder
 		}
 
 		CSmScriptPlayer@ scriptPlayer = GameState::GetScriptPlayer();
+		CSceneVehicleVisState@ visState = VehicleState::ViewingPlayerState();
 		{
 			Samples::FSampleData newEntry;
 			newEntry.Time = currentRaceTime;
@@ -41,6 +42,7 @@ namespace RouteRecorder
 		// ---------------------------------------------------------------
 		Events::RecordCtx::CurrentRaceTime = currentRaceTime;
 		@Events::RecordCtx::Player = scriptPlayer;
+		@Events::RecordCtx::VisState = visState;
 
 		{
 			for(int32 i = 0; i < Events::EventType::NumTypes; i++)

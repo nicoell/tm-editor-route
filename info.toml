@@ -8,4 +8,4 @@ siteid = 489
 [script]
 timeout = 0
 defines = ["ER_DEBUG"]
-dependencies = [ "Camera" ]
+dependencies = [ "Camera", "VehicleState" ]

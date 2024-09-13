@@ -229,6 +229,7 @@ DEFINE_SETTING_WITH_MIN_MAX_DRAG("Display", "Gizmo scale", "Scale of the gizmo."
 
 
 DEFINE_SETTING("Display", "Render Gear Events", "Render gear events.", bool, Setting_RenderGearEvents, true)
+DEFINE_SETTING("Display", "Render VehicleType Events", "Render vehicle type events.", bool, Setting_RenderVehicleTypeEvents, true)
 DEFINE_SETTING_WITH_MIN_MAX("Display", "Elapsed Event Opacity", "Opacity of events before the current time", float, Setting_ElapsedEventOpacityModifier, 0.25, 0.0, 1.0)
 
 DEFINE_SETTING("Interface", "Enable Editor Route Style", "Whether to use the custom Editor Route UI Style or the default Style.", bool, bEnableEditorRouteStyle, true)

@@ -7,6 +7,7 @@ namespace RouteSpectrum
 		Altitude,
 		Gear,
 		AvgFPS,
+		VehicleType,
 		// [New-SpectrumType]: Define new SpectrumType above this line
 		// ---------------------------------------------------------------
 		NumTypes,
@@ -32,6 +33,7 @@ namespace RouteSpectrum
 				case ESpectrumType::Altitude: return ESpectrumDataSource::Sample;
 				case ESpectrumType::Gear: return ESpectrumDataSource::Event;
 				case ESpectrumType::AvgFPS: return ESpectrumDataSource::Sample;
+				case ESpectrumType::VehicleType: return ESpectrumDataSource::Event;
 				// [New-SpectrumType]: Implement here for new SpectrumType
 			}
 			error("Missing mapping from SpectrumType to SpectrumDataSource for SpectrumType: " + spectrumType);
@@ -44,6 +46,7 @@ namespace RouteSpectrum
 			{
 				case ESpectrumType::NumTypes: return Events::EventType::None;
 				case ESpectrumType::Gear: return Events::EventType::GearEvent;
+				case ESpectrumType::VehicleType: return Events::EventType::VehicleTypeEvent;
 				// [New-SpectrumType]: Implement here for new SpectrumType with DataSource Event
 			}
 			error("Missing mapping from SpectrumType to EventType for SpectrumType: " + spectrumType);
@@ -111,6 +114,7 @@ namespace RouteSpectrum
 		switch(spectrumType)
 		{
 			case ESpectrumType::Gear: { return CalcSpectrumColor_Gear(event); }
+			case ESpectrumType::VehicleType: { return CalcSpectrumColor_VehicleType(event); }
 			// [New-SpectrumType]: Implement here for new SpectrumType with DataSource Event
 		}
 		return vec4(1, 1, 1, 1);
@@ -127,6 +131,7 @@ namespace RouteSpectrum
 			case ESpectrumType::Altitude: { CreateSpectrum_Altitude(route); }
 			case ESpectrumType::Gear: { CreateSpectrum_Gear(route); }
 			case ESpectrumType::AvgFPS: { CreateSpectrum_AvgFPS(route); }
+			case ESpectrumType::VehicleType: { CreateSpectrum_VehicleType(route); }
 			// [New-SpectrumType]: Implement here for new SpectrumType
 			default: CreateSpectrum_Speed(route);
 		}
@@ -205,6 +210,30 @@ namespace RouteSpectrum
 			route.FindNearbyEventDesc(t, eventIdx, nearbyDesc);
 			@event = route.GetPreviousEvent(eventIdx, nearbyDesc);
 			SpectrumData.Write32(RGBAColor(CalcSpectrumColor_Gear(event)));
+		}
+	}
+
+	// ---------------------------------------------------------------
+	// VehicleType
+	// ---------------------------------------------------------------
+	vec4 CalcSpectrumColor_VehicleType(Events::IEvent@ event)
+	{
+		const int32 v = (cast<Events::FVehicleTypeEvent>(event) is null) ? 0 : (cast<Events::FVehicleTypeEvent>(event).VehicleType);
+		return vec4(CosPalette::Col(v, CurrentPalette, 1./5.), 1); // 5 different Vehicle Types
+	}
+
+	void CreateSpectrum_VehicleType(Route::FRoute@ route)
+	{
+		Events::FNearbyEventDesc nearbyDesc;
+		const int32 eventIdx = int32(Events::EventType::VehicleTypeEvent);
+		float t;
+		Events::IEvent@ event;
+		for(int32 i = 0; i < SpectrumSize; i++)
+		{
+			t = float(i) / SpectrumSize;
+			route.FindNearbyEventDesc(t, eventIdx, nearbyDesc);
+			@event = route.GetPreviousEvent(eventIdx, nearbyDesc);
+			SpectrumData.Write32(RGBAColor(CalcSpectrumColor_VehicleType(event)));
 		}
 	}
 

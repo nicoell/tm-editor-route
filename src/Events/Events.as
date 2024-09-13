@@ -5,6 +5,7 @@ namespace Events
 		None = -1,
 		GearEvent,
 		WheelsContactEvent,
+		VehicleTypeEvent,
 		NumTypes
 	};
 	
@@ -13,6 +14,7 @@ namespace Events
 		Invalid = -1,
 		GearEvent = 0,
 		WheelsContactEvent = 1,
+		VehicleTypeEvent = 2,
 		// Persistent Event Type Values never change and will be used for versioning
 	};
 
@@ -27,6 +29,7 @@ namespace Events
 		{
 			case PersistentEventType::GearEvent: return Events::EventType::GearEvent;
 			case PersistentEventType::WheelsContactEvent: return Events::EventType::WheelsContactEvent;
+			case PersistentEventType::VehicleTypeEvent: return Events::EventType::VehicleTypeEvent;
 			default: return EventType::None;
 		}
 	}
@@ -42,6 +45,7 @@ namespace Events
 		{
 			case EventType::GearEvent: { return PersistentEventType::GearEvent; }
 			case EventType::WheelsContactEvent: { return PersistentEventType::WheelsContactEvent; }
+			case EventType::VehicleTypeEvent: { return PersistentEventType::VehicleTypeEvent; }
 			default: return PersistentEventType::Invalid;
 		}
 	}
@@ -103,6 +107,7 @@ namespace Events
 		{
 			case EventType::GearEvent: { return FGearEvent(); }
 			case EventType::WheelsContactEvent: { return FWheelsContactEvent(); }
+			case EventType::VehicleTypeEvent: { return FVehicleTypeEvent(); }
 			default: return null;
 		}
 	}
@@ -114,6 +119,7 @@ namespace Events
 	namespace RecordCtx
 	{
 		CSmScriptPlayer@ Player;
+		CSceneVehicleVisState@ VisState;
 		int32 CurrentRaceTime;
 		vec3 Position;
 	}
