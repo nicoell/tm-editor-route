@@ -90,7 +90,7 @@ namespace RouteSerialization
 
 			try
 			{
-				string folderPath = Path::DirName(ctx.Path);
+				string folderPath = EditorRoutePath::DirName(ctx.Path);
 				// Create the folder if it does not exist
 				if (!IO::FolderExists(folderPath))
 				{

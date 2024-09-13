@@ -1,4 +1,4 @@
-namespace Path
+namespace EditorRoutePath
 {
     string Normalize(const string &in path)
     {
@@ -159,78 +159,78 @@ namespace Path
         void TestNormalize()
         {
             print("\\$00f Testing Normalize...");
-            AssertEqual(Path::Normalize("C:\\\\Users\\\\Test"), "C:/Users/Test", "Normalize backslashes");
-            AssertEqual(Path::Normalize("C:/Users///Test/"), "C:/Users/Test/", "Normalize redundant slashes");
-            AssertEqual(Path::Normalize("/Users/Test/"), "/Users/Test/", "Normalize trailing slash");
-            AssertEqual(Path::Normalize("Users/Test"), "/Users/Test", "Normalize preceding slash");
-            AssertEqual(Path::Normalize("C:/Users/Test"), "C:/Users/Test", "Normalize drive letter");
-            AssertEqual(Path::Normalize("\\Users/Test\\"), "/Users/Test/", "Normalize mixed slashes");
-            AssertNotEqual(Path::Normalize("C:/Users/../Test"), "C:/Test", "(Unsupported) Normalize path with parent directory fails");
-            AssertNotEqual(Path::Normalize("./Users/Test"), "/Users/Test", "(Unsupported) Normalize path with current directory fails");
+            AssertEqual(EditorRoutePath::Normalize("C:\\\\Users\\\\Test"), "C:/Users/Test", "Normalize backslashes");
+            AssertEqual(EditorRoutePath::Normalize("C:/Users///Test/"), "C:/Users/Test/", "Normalize redundant slashes");
+            AssertEqual(EditorRoutePath::Normalize("/Users/Test/"), "/Users/Test/", "Normalize trailing slash");
+            AssertEqual(EditorRoutePath::Normalize("Users/Test"), "/Users/Test", "Normalize preceding slash");
+            AssertEqual(EditorRoutePath::Normalize("C:/Users/Test"), "C:/Users/Test", "Normalize drive letter");
+            AssertEqual(EditorRoutePath::Normalize("\\Users/Test\\"), "/Users/Test/", "Normalize mixed slashes");
+            AssertNotEqual(EditorRoutePath::Normalize("C:/Users/../Test"), "C:/Test", "(Unsupported) Normalize path with parent directory fails");
+            AssertNotEqual(EditorRoutePath::Normalize("./Users/Test"), "/Users/Test", "(Unsupported) Normalize path with current directory fails");
         }
 
         void TestNormalizeFileName()
         {
             print("\\$00f Testing NormalizeFileName...");
-            AssertEqual(Path::NormalizeFileName("file:name|with*invalid<>characters?"), "filenamewithinvalidcharacters", "Normalize invalid characters");
-            AssertEqual(Path::NormalizeFileName("valid_file-name.ext"), "valid_file-name.ext", "Normalize valid filename");
+            AssertEqual(EditorRoutePath::NormalizeFileName("file:name|with*invalid<>characters?"), "filenamewithinvalidcharacters", "Normalize invalid characters");
+            AssertEqual(EditorRoutePath::NormalizeFileName("valid_file-name.ext"), "valid_file-name.ext", "Normalize valid filename");
         }
 
         void TestJoin()
         {
             print("\\$00f Testing Join...");
-            AssertEqual(Path::Join("C:/Users", "Test"), "C:/Users/Test", "Join two paths");
-            AssertEqual(Path::Join("/Users/", "Test"), "/Users/Test", "Join with trailing slash in the first path");
-            AssertEqual(Path::Join("Users", "Test"), "/Users/Test", "Join two relative paths");
-            AssertEqual(Path::Join("", "Test"), "/Test", "Join with empty first path");
-            AssertEqual(Path::Join("C:/Users", ""), "C:/Users", "Join with empty second path");
+            AssertEqual(EditorRoutePath::Join("C:/Users", "Test"), "C:/Users/Test", "Join two paths");
+            AssertEqual(EditorRoutePath::Join("/Users/", "Test"), "/Users/Test", "Join with trailing slash in the first path");
+            AssertEqual(EditorRoutePath::Join("Users", "Test"), "/Users/Test", "Join two relative paths");
+            AssertEqual(EditorRoutePath::Join("", "Test"), "/Test", "Join with empty first path");
+            AssertEqual(EditorRoutePath::Join("C:/Users", ""), "C:/Users", "Join with empty second path");
         }
 
         void TestDirName()
         {
             print("\\$00f Testing DirName...");
-            AssertEqual(Path::DirName("C:/Users/Test/file.txt"), "C:/Users/Test/", "DirName for a file path");
-            AssertEqual(Path::DirName("/Users/Test/"), "/Users/Test/", "DirName for a directory path");
-            AssertEqual(Path::DirName("/Users/Test"), "/Users/", "DirName for file without extension");
-            AssertEqual(Path::DirName("file.txt"), "/", "DirName for a file in the current directory");
-            AssertEqual(Path::DirName("/file.txt"), "/", "DirName for a file in the root directory");
+            AssertEqual(EditorRoutePath::DirName("C:/Users/Test/file.txt"), "C:/Users/Test/", "DirName for a file path");
+            AssertEqual(EditorRoutePath::DirName("/Users/Test/"), "/Users/Test/", "DirName for a directory path");
+            AssertEqual(EditorRoutePath::DirName("/Users/Test"), "/Users/", "DirName for file without extension");
+            AssertEqual(EditorRoutePath::DirName("file.txt"), "/", "DirName for a file in the current directory");
+            AssertEqual(EditorRoutePath::DirName("/file.txt"), "/", "DirName for a file in the root directory");
         }
 
         void TestFileName()
         {
             print("\\$00f Testing FileName...");
-            AssertEqual(Path::FileName("C:/Users/Test/file.txt"), "file.txt", "FileName for a file path");
-            AssertEqual(Path::FileName("/Users/Test/"), "", "FileName for a directory path");
-            AssertEqual(Path::FileName("/Users/Test"), "Test", "FileName for file without extension");
-            AssertEqual(Path::FileName("file.txt"), "file.txt", "FileName for a file in the current directory");
-            AssertEqual(Path::FileName("/"), "", "FileName for the root directory");
+            AssertEqual(EditorRoutePath::FileName("C:/Users/Test/file.txt"), "file.txt", "FileName for a file path");
+            AssertEqual(EditorRoutePath::FileName("/Users/Test/"), "", "FileName for a directory path");
+            AssertEqual(EditorRoutePath::FileName("/Users/Test"), "Test", "FileName for file without extension");
+            AssertEqual(EditorRoutePath::FileName("file.txt"), "file.txt", "FileName for a file in the current directory");
+            AssertEqual(EditorRoutePath::FileName("/"), "", "FileName for the root directory");
         }
 
         void TestLastFolder()
         {
             print("\\$00f Testing LastFolder...");
-            AssertEqual(Path::LastFolder("C:/Users/Test/"), "Test", "LastFolder for an absolute path");
-            AssertEqual(Path::LastFolder("Users/Test"), "Users", "LastFolder for a relative path");
-            AssertEqual(Path::LastFolder("/"), "", "LastFolder for the root directory");
-            AssertEqual(Path::LastFolder("C:/"), "", "LastFolder for a drive root directory");
+            AssertEqual(EditorRoutePath::LastFolder("C:/Users/Test/"), "Test", "LastFolder for an absolute path");
+            AssertEqual(EditorRoutePath::LastFolder("Users/Test"), "Users", "LastFolder for a relative path");
+            AssertEqual(EditorRoutePath::LastFolder("/"), "", "LastFolder for the root directory");
+            AssertEqual(EditorRoutePath::LastFolder("C:/"), "", "LastFolder for a drive root directory");
         }
 
         void TestFileNameWithoutExtension()
         {
             print("\\$00f Testing FileNameWithoutExtension...");
-            AssertEqual(Path::FileNameWithoutExtension("C:/Users/Test/file.txt"), "file", "FileNameWithoutExtension with extension");
-            AssertEqual(Path::FileNameWithoutExtension("C:/Users/Test/file"), "file", "FileNameWithoutExtension without extension");
-            AssertEqual(Path::FileNameWithoutExtension("C:/Users/Test/file.name.txt"), "file.name", "FileNameWithoutExtension with multiple dots");
-            AssertEqual(Path::FileNameWithoutExtension("C:/Users/Test/.hiddenfile"), "", "FileNameWithoutExtension for hidden file");
+            AssertEqual(EditorRoutePath::FileNameWithoutExtension("C:/Users/Test/file.txt"), "file", "FileNameWithoutExtension with extension");
+            AssertEqual(EditorRoutePath::FileNameWithoutExtension("C:/Users/Test/file"), "file", "FileNameWithoutExtension without extension");
+            AssertEqual(EditorRoutePath::FileNameWithoutExtension("C:/Users/Test/file.name.txt"), "file.name", "FileNameWithoutExtension with multiple dots");
+            AssertEqual(EditorRoutePath::FileNameWithoutExtension("C:/Users/Test/.hiddenfile"), "", "FileNameWithoutExtension for hidden file");
         }
 
         void TestHasExtension()
         {
             print("\\$00f Testing HasExtension...");
-            AssertEqual(Path::HasExtension("C:/Users/Test/file.txt", "txt"), true, "HasExtension matching");
-            AssertEqual(Path::HasExtension("C:/Users/Test/file.txt", "json"), false, "HasExtension non-matching");
-            AssertEqual(Path::HasExtension("C:/Users/Test/file.TXT", "txt"), true, "HasExtension case insensitive match");
-            AssertEqual(Path::HasExtension("C:/Users/Test/file", "txt"), false, "HasExtension without extension");
+            AssertEqual(EditorRoutePath::HasExtension("C:/Users/Test/file.txt", "txt"), true, "HasExtension matching");
+            AssertEqual(EditorRoutePath::HasExtension("C:/Users/Test/file.txt", "json"), false, "HasExtension non-matching");
+            AssertEqual(EditorRoutePath::HasExtension("C:/Users/Test/file.TXT", "txt"), true, "HasExtension case insensitive match");
+            AssertEqual(EditorRoutePath::HasExtension("C:/Users/Test/file", "txt"), false, "HasExtension without extension");
         }
 
         void AssertEqual(const string &in actual, const string &in expected, const string &in testName)

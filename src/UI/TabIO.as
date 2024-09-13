@@ -24,7 +24,7 @@ namespace EditorRouteUI
 
 			FGameMapInfo(CGameCtnChallengeInfo &in gameMapInfo)
 			{
-				RelativeFolder = Path::Normalize(gameMapInfo.Path);
+				RelativeFolder = EditorRoutePath::Normalize(gameMapInfo.Path);
 				if (gameMapInfo.Fid !is null)
 				{
 					MapName = gameMapInfo.Fid.ShortFileName;
@@ -71,7 +71,7 @@ namespace EditorRouteUI
 				UID = mapInfo.UID;
 				MapName = mapInfo.MapName;
 				MapNameForUI = mapInfo.MapNameForUI;
-				RelativeFolder = Path::Join(mapInfo.RelativeFolder, EncodeMapFolderName());
+				RelativeFolder = EditorRoutePath::Join(mapInfo.RelativeFolder, EncodeMapFolderName());
 				bIsCurrentMap = true;
 			}
 
@@ -126,12 +126,12 @@ namespace EditorRouteUI
 		// ---------------------------------------------------------------
 		void ProcessRouteFile(const string &in fullPath)
 		{
-			if (Path::HasExtension(fullPath, "json"))
+			if (EditorRoutePath::HasExtension(fullPath, "json"))
 			{
-				string relativePath = Path::Normalize(Regex::Replace(fullPath, "^" + RoutesPath + "/?", "", Regex::Flags::ECMAScript));
+				string relativePath = EditorRoutePath::Normalize(Regex::Replace(fullPath, "^" + RoutesPath + "/?", "", Regex::Flags::ECMAScript));
 
-				string relativeFolder = Path::DirName(relativePath);
-				string fileName = Path::FileName(relativePath);
+				string relativeFolder = EditorRoutePath::DirName(relativePath);
+				string fileName = EditorRoutePath::FileName(relativePath);
 				string pattern = "(\\d*)_(.*)\\.json";
 				string[]@ matches = Regex::Search(fileName, pattern, Regex::Flags::ECMAScript);
 
@@ -149,7 +149,7 @@ namespace EditorRouteUI
 					timestamp = 0;
 				}
 
-				string mapName = Path::LastFolder(relativeFolder);
+				string mapName = EditorRoutePath::LastFolder(relativeFolder);
 
 				string uid = Regex::Replace(mapName, "^[^{]*\\{([^\\}]+)\\}.*$", "$1", Regex::Flags::ECMAScript);
 				mapName = Regex::Replace(mapName, "^[^{]*\\{[^\\}]*\\}", "", Regex::Flags::ECMAScript);
@@ -209,8 +209,8 @@ namespace EditorRouteUI
 				FRouteMapInfo@ mapRouteInfo;
 				MapUIDToRoutesDict.Get(uid, @mapRouteInfo);
 
-				string mapFolderFromRoot = Path::Join("root", mapRouteInfo.RelativeFolder);
-				array<string> folderParts = Path::Split(mapFolderFromRoot);
+				string mapFolderFromRoot = EditorRoutePath::Join("root", mapRouteInfo.RelativeFolder);
+				array<string> folderParts = EditorRoutePath::Split(mapFolderFromRoot);
 				dictionary@ currentLevel = FolderTreeToMapUIDDict;
 				for (uint32 j = 0; j < folderParts.Length; j++)
 				{
@@ -259,7 +259,7 @@ namespace EditorRouteUI
 			if (bIsRoutesFileListDirty)
 			{
 
-				RoutesPath = Path::Normalize(IO::FromStorageFolder(RoutesPathRelative));
+				RoutesPath = EditorRoutePath::Normalize(IO::FromStorageFolder(RoutesPathRelative));
 				IO::CreateFolder(RoutesPath, true);
 
 				auto routesFileList = IO::IndexFolder(RoutesPath, true);
@@ -322,7 +322,7 @@ namespace EditorRouteUI
 			// Open Folder
 			if (UI::Button(Icons::FolderO + "##" + rowIndex)) 
 			{
-				OpenExplorerPath(Path::DirName(route.FullPath));
+				OpenExplorerPath(EditorRoutePath::DirName(route.FullPath));
 			}
 			RUtils::AddTooltipText("Open Folder");
 			UI::SameLine();
@@ -376,7 +376,7 @@ namespace EditorRouteUI
 				UI::PopItemWidth();
 				if (bHasChanged)
 				{
-					UserRouteName = Path::NormalizeFileName(UserRouteName);
+					UserRouteName = EditorRoutePath::NormalizeFileName(UserRouteName);
 				}
 				
 				UI::TableNextColumn();
@@ -387,10 +387,10 @@ namespace EditorRouteUI
 				// Save to File
 				if (UI::Button(Icons::FloppyO + "##" + mapRouteInfo.UID))
 				{
-					string routeFileName = Path::NormalizeFileName(Time::Stamp + "_" + UserRouteName) + ".json";
-					string savedRoutePath = Path::Join(
+					string routeFileName = EditorRoutePath::NormalizeFileName(Time::Stamp + "_" + UserRouteName) + ".json";
+					string savedRoutePath = EditorRoutePath::Join(
 						RoutesPath, 
-						Path::Join(mapRouteInfo.RelativeFolder, routeFileName)
+						EditorRoutePath::Join(mapRouteInfo.RelativeFolder, routeFileName)
 					);
 
 					RouteSerialization::ExportRouteToFile(RouteContainer::Table::SelectedRouteIndex, savedRoutePath);
@@ -464,7 +464,7 @@ namespace EditorRouteUI
 			else
 			{
 				int32 additionalTreeNodeFlags = UI::TreeNodeFlags::None;
-				if (CurrentMapInfo.RelativeFolder.StartsWith(Path::Normalize(folderPath)))
+				if (CurrentMapInfo.RelativeFolder.StartsWith(EditorRoutePath::Normalize(folderPath)))
 				{
 					additionalTreeNodeFlags = UI::TreeNodeFlags::DefaultOpen;
 				}
