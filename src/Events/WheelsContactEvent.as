@@ -14,7 +14,7 @@ namespace Events
 			return otherTyped is null || otherTyped.WheelsContactCount != WheelsContactCount;
 		}
 		string GetUITooltip() const override { return "Wheel Contact Count"; }
-		string GetUIValue() const override { return Icons::Car + WheelsContactCount; }
+		string GetUIValue() const override { return "" + WheelsContactCount; }
 
 		FArchive@ SaveArchive() override
 		{
