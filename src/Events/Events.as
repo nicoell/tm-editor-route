@@ -156,7 +156,9 @@ namespace Events
 
 		string GetUIValue() const { return "Event"; }
 		float GetRadius() const { return 14.f; }
-		vec3 GetColor() const { return vec3(0.2, 0.2, 0.2); }
+		vec3 GetStrokeColor() const { return vec3(0.05, 0.05, 0.05); }
+		vec3 GetFillColor() const { return vec3(0.2, 0.2, 0.2); }
+		vec3 GetTextColor() const { return vec3(1., 1., 1.); }
 
 		void Record() {}
 
@@ -175,13 +177,11 @@ namespace Events
 			vec2 offsetPos = vec2(screenPos.x, screenPos.y - radius - dotRadius);
 			bIsHovered = (RenderCtx::MouseCoords - offsetPos).LengthSquared() < (radius * radius);
 		
-			float alphaMod = /* bIsEventElapsed */ Time < RUtils::AsInt(RouteTime::Time) ? Setting_ElapsedEventOpacityModifier : 1.f;
-
-			vec3 color = GetColor();
+			float alphaMod = /* bIsEventElapsed */ Time < RUtils::AsInt(RouteTime::Time) ? Setting_ElapsedEventOpacityModifier : 1.;
 
 			nvg::StrokeWidth(bIsRouteSelected ? 1.5 : 1.);
-			nvg::StrokeColor(vec4(color * 0.2, (bIsRouteSelected ? 0.8 : 0.4)) * alphaMod);
-			nvg::FillColor(vec4(color, (bIsHovered ? 1. : .8) * alphaMod));
+			nvg::StrokeColor(vec4((bIsHovered ? GetTextColor() : GetStrokeColor()), (bIsRouteSelected ? 0.8 : 0.4) * alphaMod));
+			nvg::FillColor(vec4(GetFillColor(), (bIsHovered ? 1. : .8) * alphaMod));
 
 			// ---------------------------------------------------------------
 			// Dot
@@ -199,7 +199,7 @@ namespace Events
 
 			// ---------------------------------------------------------------
 			// Event Text
-			nvg::FillColor(vec4(ContrastColor::Get(color), (bIsHovered ? 0.75 : 1.0) * alphaMod));
+			nvg::FillColor(vec4(GetTextColor(), (bIsHovered ? 0.75 : 1.0) * alphaMod));
 			nvg::BeginPath();
 			nvg::FontSize(16 * Setting_EventScale);
 			nvg::FontFace(Fonts::nvg(Fonts::Type::DroidSansBold));

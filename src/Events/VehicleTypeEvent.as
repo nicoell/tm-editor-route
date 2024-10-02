@@ -48,14 +48,29 @@ namespace Events
 		{
 			return Icons::Car;
 		}
-		vec3 GetColor() const override 
+
+		vec3 GetStrokeColor() const override { return vec3(0., 0., 0.); }
+		vec3 GetFillColor() const override 
+		{
+			switch(VehicleType)
+			{
+				case EVehicleType::CarSport: return vec3(0.07, 0.82, 0.38);
+				case EVehicleType::CarSnow: return vec3(0.52, 0.77, 0.75);
+				case EVehicleType::CarRally: return vec3(0.17, 0.40, 0.13);
+				case EVehicleType::CarDesert: return vec3(0.62, 0.37, 0.02);
+				default:
+					return vec3(0.3, 0.3, 0.3); 
+			}
+			return vec3(0.3, 0.3, 0.3); 
+		}
+		vec3 GetTextColor() const override 
 		{ 
 			switch(VehicleType)
 			{
-				case EVehicleType::CarSport: return vec3(0.47, 0.03, 0.59);
-				case EVehicleType::CarSnow: return vec3(0.82, 0.02, 0.02);
-				case EVehicleType::CarRally: return vec3(1.00, 0.56, 0.04);
-				case EVehicleType::CarDesert: return vec3(1.00, 0.91, 0.25);
+				case EVehicleType::CarSport: return vec3(0.09, 0.09, 0.09);
+				case EVehicleType::CarSnow: return vec3(0.54, 0.01, 0.01);
+				case EVehicleType::CarRally: return vec3(0.96, 0.51, 0.11);
+				case EVehicleType::CarDesert: return vec3(1.00, 0.89, 0.18);
 				default:
 					return vec3(0.3, 0.3, 0.3); 
 			}
