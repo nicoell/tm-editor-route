@@ -203,7 +203,7 @@ AS_ENDIF
 					
 					if (pclip.w < 0) 
 					{
-						events[eventIdx].Render(dp + vec2(pclip.x / pclip.w + 1, pclip.y / pclip.w + 1) * sc, isSelected); 
+						events[eventIdx].RenderBadge(dp + vec2(pclip.x / pclip.w + 1, pclip.y / pclip.w + 1) * sc, isSelected); 
 					}
 				}
 			}

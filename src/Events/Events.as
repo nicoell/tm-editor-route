@@ -155,6 +155,7 @@ namespace Events
 		}
 
 		string GetUIValue() const { return "Event"; }
+		string GetBadgeText() const { return ""; }
 		float GetRadius() const { return 14.f; }
 		vec3 GetStrokeColor() const { return vec3(0.05, 0.05, 0.05); }
 		vec3 GetFillColor() const { return vec3(0.2, 0.2, 0.2); }
@@ -169,7 +170,7 @@ namespace Events
 		 * pos: 2D Screen Positon
 		 * Additionally Events::RenderCtx can be accessed during Rendering.
 		 */
-		void Render(vec2 screenPos, bool bIsRouteSelected) 
+		void RenderBadge(vec2 screenPos, bool bIsRouteSelected) 
 		{
 			const float radius = GetRadius() * Setting_EventScale;
 			const float dotRadius = 3.f * Setting_EventScale;
@@ -198,13 +199,13 @@ namespace Events
 			nvg::Stroke();
 
 			// ---------------------------------------------------------------
-			// Event Text
+			// Event Badge Text
 			nvg::FillColor(vec4(GetTextColor(), (bIsHovered ? 0.75 : 1.0) * alphaMod));
 			nvg::BeginPath();
 			nvg::FontSize(16 * Setting_EventScale);
 			nvg::FontFace(Fonts::nvg(Fonts::Type::DroidSansBold));
 			nvg::TextAlign(nvg::Align::Center | nvg::Align::Middle);
-			nvg::Text(offsetPos, GetUIValue());
+			nvg::Text(offsetPos, GetBadgeText());
 
 			// ---------------------------------------------------------------
 			// Click handling

@@ -16,6 +16,7 @@ namespace Events
 		}
 
 		string GetUIValue() const override { return Icons::Cog + Gear; }
+		string GetBadgeText() const override { return Icons::Cog + Gear; }
 		vec3 GetStrokeColor() const override { return vec3(0., 0., 0.); }
 		vec3 GetFillColor() const override { return vec3(0.3, 0.3, 0.3); }
 		vec3 GetTextColor() const override { return vec3(1., 1., 1.); }

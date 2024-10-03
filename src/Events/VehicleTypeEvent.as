@@ -46,7 +46,21 @@ namespace Events
 
 		string GetUIValue() const override 
 		{
-			return Icons::Car;
+			switch(VehicleType)
+			{
+				case EVehicleType::CarSport: return "Stadium Car";
+				case EVehicleType::CarSnow: return "Snow Car";
+				case EVehicleType::CarRally: return "Rally Car";
+				case EVehicleType::CarDesert: return "Desert Car";
+				default:
+					return "Unknown Car"; 
+			}
+			return "Unknown Car"; 
+		}
+		
+		string GetBadgeText() const override 
+		{ 
+			return Icons::Car; 
 		}
 
 		vec3 GetStrokeColor() const override { return vec3(0., 0., 0.); }
@@ -63,6 +77,7 @@ namespace Events
 			}
 			return vec3(0.3, 0.3, 0.3); 
 		}
+		
 		vec3 GetTextColor() const override 
 		{ 
 			switch(VehicleType)
