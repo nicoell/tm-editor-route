@@ -9,3 +9,4 @@ siteid = 489
 timeout = 0
 defines = ["ER_DEBUG"]
 dependencies = [ "Camera", "VehicleState" ]
+optional_dependencies = [ "Editor" ]

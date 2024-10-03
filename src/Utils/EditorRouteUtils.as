@@ -278,6 +278,17 @@ namespace RUtils
 		return quat(x, y, z, w);
 	}
 
+	bool ShouldUseEditorPlusPlus()
+	{
+AS_IF DEPENDENCY_EDITOR
+		if (!Setting_Enable3DLines) { return false; }
+		auto epp = Meta::GetPluginFromID("Editor");
+		return (epp is null) ? false : epp.Enabled;
+AS_ELSE
+		return false;
+AS_ENDIF
+	}
+
 #if ER_DEBUG
 	void DebugTrace(const string& in s){ trace(Icons::MapO + s); }
 	void DebugPrint(const string& in s){ print(Icons::MapO + s); }

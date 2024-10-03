@@ -35,6 +35,11 @@ namespace RouteRenderer
 		nvg::MiterLimit(0.f);
 		nvg::LineCap(nvg::LineCapType::Round);
 
+AS_IF DEPENDENCY_EDITOR
+		// Reset ActiveDrawInstanceIds at the beginning of the frame
+    	ActiveDrawInstanceIds.Resize(0);
+AS_ENDIF
+
 		for (uint32 row = 0; row < RouteContainer::Routes.Length; row++)
 		{
 			const uint32 routeIdx = RouteContainer::Table::OrderedRouteIndices[row];
@@ -55,12 +60,22 @@ namespace RouteRenderer
 			}
 		}
 
+		// Cleanup unused DrawInstances
+	    CleanupUnusedEPP();
 
 		if (bDebug) { RUtils::DebugTrace("After Render: " + Time::get_Now());}
 
 		UpdateRenderTime(Time::get_Now() - startTime);
 
 		bDebug = false;
+	}
+
+	void Reset()
+	{
+		if (RUtils::ShouldUseEditorPlusPlus())
+		{
+			ResetEPP();
+		}
 	}
 
 	void RenderRoute(const uint32 routeIdx)
@@ -70,28 +85,33 @@ namespace RouteRenderer
 
 		if (Setting_RenderSelectedOnly && !isSelected) { return; }
 
-		vec4 color = isSelected ? vec4(Setting_SelectedRouteColor, 1) : vec4(Setting_RouteColor, 0.8);
-
-		nvg::StrokeWidth(Setting_RouteLineWidth);
+		if (RUtils::ShouldUseEditorPlusPlus())
 		{
-			nvg::StrokeColor(vec4(color.xyz, color.w * Setting_ElapsedRouteOpacityModifier));
-			RenderRouteLine(route, 0, route.BestSampleIndex + 1);
+			RenderRouteLineEPP(route);
 		}
+		else
 		{
-			nvg::StrokeColor(color);
-			RenderRouteLine(route, route.BestSampleIndex, route.GetNumSamples() - route.BestSampleIndex);
+			vec4 color = isSelected ? vec4(Setting_SelectedRouteColor, 1) : vec4(Setting_RouteColor, 0.8);
+
+			nvg::StrokeWidth(Setting_RouteLineWidth);
+			{
+				nvg::StrokeColor(vec4(color.xyz, color.w * Setting_ElapsedRouteOpacityModifier));
+				RenderRouteLine(route, 0, route.BestSampleIndex + 1);
+			}
+			{
+				nvg::StrokeColor(color);
+				RenderRouteLine(route, route.BestSampleIndex, route.GetNumSamples() - route.BestSampleIndex);
+			}
 		}
 
 		RenderEvents(route, isSelected);
 
 		auto@ sample = route.CurrentSample;
-
 		{
 			RenderGizmo(sample);
 			RenderBox(sample);
 		}
 	}
-
 
 	void UpdateRenderTime(uint64 newRenderTime)
 	{
@@ -297,5 +317,118 @@ namespace RouteRenderer
 			}
 		}
 	}
+
+AS_IF DEPENDENCY_EDITOR
+	// Dictionary to store DrawInstances, mapping from DrawInstance ID to DrawInstance handle
+    dictionary DrawInstancesEPP;
+
+    // Array to keep track of DrawInstances used in the current frame
+    array<string> ActiveDrawInstanceIds;
+
+	// Function to render a route using DrawInstance
+    void RenderRouteLineEPP(const Route::FRoute@ route)
+    {
+        // Create a render hash for the route
+        uint32 drawInstanceId = route.CreateRenderHash();
+		string drawInstanceIdStr = "EditorRoute_" + drawInstanceId;
+
+        // Keep track of used DrawInstance IDs
+        ActiveDrawInstanceIds.InsertLast(drawInstanceIdStr);
+
+        Editor::DrawLinesAndQuads::DrawInstance@ drawInstance;
+
+        // Get or create the DrawInstance
+        if (!DrawInstancesEPP.Exists(drawInstanceIdStr))
+        {
+			RUtils::DebugTrace("Create new DrawInstance #" + drawInstanceIdStr);
+            @drawInstance = Editor::DrawLinesAndQuads::GetOrCreateDrawInstance(drawInstanceIdStr);
+            DrawInstancesEPP.Set(drawInstanceIdStr, @drawInstance);
+        }
+        else
+        {
+            // Retrieve the DrawInstance from the dictionary
+            @drawInstance = cast<Editor::DrawLinesAndQuads::DrawInstance@>(DrawInstancesEPP[drawInstanceIdStr]);
+        }
+
+        // If the DrawInstance has no line segments, we need to populate it
+        if (drawInstance.NbLineSegments() == 0)
+        {
+			RUtils::DebugTrace("Fill DrawInstance #" + drawInstanceIdStr);
+
+            // Fill the DrawInstance with line segments
+            const int32 startIdx = 0;
+            const int32 count = route.GetNumSamples();
+
+            const uint32 numPositions = startIdx + count;
+
+            const auto bIsDiscontinuousArrayCopy = route.bIsDiscontinuousArray;
+            const auto@ sampleArray = @route.SampleDataArray;
+
+            int32 lastValidIndex = -1;
+
+			drawInstance.ResizeLineSegments(numPositions - 1);
+
+            for (uint32 i = startIdx; i < numPositions; i++)
+            {
+                if (bIsDiscontinuousArrayCopy[i])
+                {
+                    // Handle discontinuities by resetting lastValidIndex
+                    lastValidIndex = -1;
+                }
+                else
+                {
+                    if (lastValidIndex >= 0)
+                    {
+                        // Add a line segment between the last valid point and the current point
+                        drawInstance.PushLineSegment(sampleArray[lastValidIndex].Position + vec3(0, 64.25, 0), sampleArray[i].Position + vec3(0, 64.25, 0));
+                    }
+                    lastValidIndex = i;
+                }
+            }
+
+            // Request the line color (NonSelected Color without Alpha)
+            drawInstance.RequestLineColor(vec3(Setting_RouteColor.x, Setting_RouteColor.y, Setting_RouteColor.z));
+        }
+
+        // Call Draw on the DrawInstance to render it
+        drawInstance.Draw();
+    }
+
+    // Function to clean up unused DrawInstances after rendering
+    void CleanupUnusedEPP()
+    {
+        array<string>@ allKeys = DrawInstancesEPP.GetKeys();
+        for (uint i = 0; i < allKeys.Length; i++)
+        {
+            string key = allKeys[i];
+            if (ActiveDrawInstanceIds.Find(key) < 0)
+            {
+				RUtils::DebugTrace("Delete DrawInstance #" + key);
+                // The DrawInstance was not used in this frame
+                auto drawInstance = cast<Editor::DrawLinesAndQuads::DrawInstance@>(DrawInstancesEPP[key]);
+                drawInstance.Deregister();
+                DrawInstancesEPP.Delete(key);
+            }
+        }
+    }
+
+	void ResetEPP()
+	{
+		array<string>@ allKeys = DrawInstancesEPP.GetKeys();
+        for (uint i = 0; i < allKeys.Length; i++)
+        {
+            string key = allKeys[i];
+			RUtils::DebugTrace("Delete DrawInstance #" + key);
+			// The DrawInstance was not used in this frame
+			auto drawInstance = cast<Editor::DrawLinesAndQuads::DrawInstance@>(DrawInstancesEPP[key]);
+			drawInstance.Deregister();
+			DrawInstancesEPP.Delete(key);
+		}
+	}
+AS_ELSE
+	void RenderRouteLineEPP(const Route::FRoute@ route) {}
+	void CleanupUnusedEPP() {}
+	void ResetEPP() {}
+AS_ENDIF
 
 }

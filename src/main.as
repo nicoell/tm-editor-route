@@ -60,6 +60,16 @@ void Render()
 	}
 }
 
+void OnDestroyed()
+{
+	RouteRenderer::Reset();
+}
+
+void OnDisabled()
+{
+	RouteRenderer::Reset();
+}
+
 void RenderMenu()
 {
 	EditorRouteUI::RenderMenu();

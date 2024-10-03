@@ -74,6 +74,7 @@ namespace GameState
 		RouteContainer::Reset();
 		RouteTime::Reset();
 		RouteSpectrum::ResetRuntime();
+		RouteRenderer::Reset();
 	}
 
 	void CleanupRuntimeKeepRoutes()
@@ -81,6 +82,7 @@ namespace GameState
 		RouteContainer::Table::Reset();
 		RouteTime::Reset();
 		RouteSpectrum::ResetRuntime();
+		RouteRenderer::Reset();
 	}
 
 	void CleanupAll()
@@ -88,5 +90,6 @@ namespace GameState
 		RouteContainer::Reset();
 		RouteTime::Reset();
 		RouteSpectrum::ResetAll();
+		RouteRenderer::Reset();
 	}
 }

@@ -402,5 +402,32 @@ namespace Route
 				}
 			}
 		}
+
+		uint32 CreateRenderHash() const
+		{
+			uint32 seed = 0;
+			const uint32 magic_number = 0x9e3779b9; // A large prime number
+
+			// Hash the ID
+			seed ^= ID + magic_number + (seed << 6) + (seed >> 2);
+
+			// Hash the number of samples
+			uint32 numSamples = GetNumSamples();
+			seed ^= numSamples + magic_number + (seed << 6) + (seed >> 2);
+
+			// Hash the length of the Events array
+			uint32 eventsLength = Events.Length;
+			seed ^= eventsLength + magic_number + (seed << 6) + (seed >> 2);
+
+			// Hash the minimum time (cast to uint32 to handle potential negative values)
+			uint32 minTime = uint32(GetMinTime());
+			seed ^= minTime + magic_number + (seed << 6) + (seed >> 2);
+
+			// Hash the maximum time (cast to uint32 to handle potential negative values)
+			uint32 maxTime = uint32(GetMaxTime());
+			seed ^= maxTime + magic_number + (seed << 6) + (seed >> 2);
+
+			return seed;
+		}
 	}
 }

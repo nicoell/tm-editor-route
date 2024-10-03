@@ -236,3 +236,5 @@ DEFINE_SETTING("Interface", "Enable Editor Route Style", "Whether to use the cus
 DEFINE_SETTING("Interface", "Disable unreadable detail colors", "Disables coloring of Stats in the UI when the text color is hard to read on the background.", bool, bPreventBadSpectrumReadability, true)
 
 DEFINE_SETTING("Blender Integration", "POST URL", "The full URL (including port) that the Editor Route will be POSTed to.", string, Setting_UploadEditorRouteURL, "http://localhost:42069/trails")
+
+DEFINE_SETTING("Experimental", "Enable 3D-Lines", "(Requires Editor++ Plugin) Render Lines as 3D-Lines in the World with depth-testing. Does not support different Line Widths and detailed Line Colors.", bool, Setting_Enable3DLines, false)
