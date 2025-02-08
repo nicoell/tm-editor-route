@@ -134,7 +134,7 @@ namespace RouteSerialization
 
 			try
 			{
-				auto request = Net::HttpPost(Setting_UploadEditorRouteURL, result.JsonString, "application/json");
+				auto request = Net::HttpPost(Setting_UploadEditorRouteURL, "[" + result.JsonString + "]", "application/json");
 				while(!request.Finished()) { yield(); }
 
 				auto status = request.ResponseCode();
