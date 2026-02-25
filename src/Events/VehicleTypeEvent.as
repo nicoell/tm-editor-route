@@ -52,8 +52,6 @@ namespace Events
 				case EVehicleType::CarSnow: return "Snow Car";
 				case EVehicleType::CarRally: return "Rally Car";
 				case EVehicleType::CarDesert: return "Desert Car";
-				default:
-					return "Unknown Car"; 
 			}
 			return "Unknown Car"; 
 		}
@@ -72,8 +70,6 @@ namespace Events
 				case EVehicleType::CarSnow: return vec3(0.52, 0.77, 0.75);
 				case EVehicleType::CarRally: return vec3(0.17, 0.40, 0.13);
 				case EVehicleType::CarDesert: return vec3(0.62, 0.37, 0.02);
-				default:
-					return vec3(0.3, 0.3, 0.3); 
 			}
 			return vec3(0.3, 0.3, 0.3); 
 		}
