@@ -69,7 +69,7 @@ namespace RUtils
 	bool IsOnScreen(const vec2 &in ss)
 	{
 		return ss.x > 0 && ss.y > 0 &&
-		ss.x < Draw::GetWidth() && ss.y < Draw::GetHeight();
+		ss.x < Display::GetWidth() && ss.y < Display::GetHeight();
 	}
 
 	int32 Lerp(const int32 a, const int32 b, const float t)

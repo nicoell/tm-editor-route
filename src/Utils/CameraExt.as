@@ -11,7 +11,7 @@ namespace CameraExt
 		
 		vec2 topLeft = 1 - (camera.DrawRectMax + 1) / 2;
 		vec2 bottomRight = 1 - (camera.DrawRectMin + 1) / 2;
-		DisplaySize = vec2(Draw::GetWidth(), Draw::GetHeight());
+		DisplaySize = Display::GetSize();
 		DisplayPos = topLeft * DisplaySize;
 		DisplaySize *= bottomRight - topLeft;
 		ScaleToDisplay = 0.5 * DisplaySize;
