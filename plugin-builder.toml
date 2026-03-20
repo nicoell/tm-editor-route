@@ -6,7 +6,7 @@ zip_name = "EditorRoute.op"
 whitelist = ["src", "info.toml", "LICENSE", "Readme.md"]
 
 [mcpp]
-# Relative to the executable
+# Relative to the builder executable. PluginBuilder bundles this runtime itself.
 executable_path = "tools/mcpp/bin/mcpp.exe"
 
 [debug]

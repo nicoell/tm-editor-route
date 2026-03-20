@@ -36,7 +36,7 @@ If you're a developer interested in contributing new features or customizations,
 
 This plugin uses a custom preprocessor to add C-style macro support. The plugin code is not valid AngelScript code for OpenPlanet and must not be placed in the OpenPlanet plugin folder directly.
 
-The project now uses the standalone PluginBuilder from the `tm-plugin-builder/` submodule. This repository contains the plugin-specific builder settings in `plugin-builder.toml` plus two helper scripts that make the common workflows easy to run.
+The project now uses the standalone PluginBuilder from the `tm-plugin-builder/` submodule. This repository contains the plugin-specific builder settings in `plugin-builder.toml` plus two helper scripts that make the common workflows easy to run. The builder ships its own bundled `mcpp` runtime, so this repository no longer vendors `mcpp` separately, but the config still points to the builder-bundled runtime.
 
 The helper scripts use shared PowerShell logic from the submodule and resolve the builder in this order:
 - use an existing local builder build if one is already available

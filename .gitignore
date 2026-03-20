@@ -15,9 +15,6 @@
 !/src/
 !/src/**
 !/tm-plugin-builder
-!/tools/
-!/tools/mcpp-2.7.2/
-!/tools/mcpp-2.7.2/**
 
 # Keep generated release artifacts ignored.
 *.op
