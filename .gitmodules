@@ -1,0 +1,3 @@
+[submodule "tm-plugin-builder"]
+	path = tm-plugin-builder
+	url = https://github.com/nicoell/tm-plugin-builder.git

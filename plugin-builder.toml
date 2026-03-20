@@ -1,0 +1,19 @@
+[git]
+repo_url = "https://github.com/nicoell/tm-editor-route.git"
+
+[archive]
+zip_name = "EditorRoute.op"
+whitelist = ["src", "info.toml", "LICENSE", "Readme.md"]
+
+[mcpp]
+# Relative to the executable
+executable_path = "tools/mcpp/bin/mcpp.exe"
+
+[debug]
+dev_plugin_name = "EditorRouteDev"
+
+[preprocessor]
+debug_macro = "DEBUG=1"
+release_macro = "RELEASE=1"
+define_to_replace = "ER_DEBUG"
+replacement_define = "ER_SHIPPING"

@@ -34,45 +34,46 @@ Shows visualizations of recorded runs from Test Mode and Track Validation within
 ## Contributing
 If you're a developer interested in contributing new features or customizations, please explore the code, get in touch on [Discord](https://discord.com/channels/276076890714800129/1202328231819362344), and submit a pull request.
 
-This plugin uses a custom preprocessor to add C-Style Macro support. The plugin code is not valid AngelScript code for OpenPlanet and must not be placed in the OpenPlanet plugin folder directly.
+This plugin uses a custom preprocessor to add C-style macro support. The plugin code is not valid AngelScript code for OpenPlanet and must not be placed in the OpenPlanet plugin folder directly.
 
-We will use the `pluginbuilder.exe` with the debug command to preprocess the plugin code and copy it to the OpenPlanet plugin folder:
+The project now uses the standalone PluginBuilder from the `tm-plugin-builder/` submodule. This repository contains the plugin-specific builder settings in `plugin-builder.toml` plus two helper scripts that make the common workflows easy to run.
 
-### Contributing: How to Use the Debug Command
-Before using the `debug` command, ensure you have the following:
+The helper scripts use shared PowerShell logic from the submodule and resolve the builder in this order:
+- use an existing local builder build if one is already available
+- otherwise download a matching prebuilt builder from GitHub Releases when the submodule is checked out at an exact tag
+- otherwise build the builder locally from the submodule source
 
-1. **Prebuilt `pluginbuilder.exe`**: The executable should be placed in the root folder of the repository.
-2. **Git Repository**: Ensure you have cloned the repository and are working from the root directory of the cloned repository.
+### Build Debug
 
-#### Steps to Use the Debug Command
+```powershell
+.\BuildDebug.ps1
+```
 
-1. **Navigate to the Repository Root**:
-   Open a command prompt or terminal and navigate to the root directory of the cloned repository.
+This script:
+- Resolves PluginBuilder through the shared `tm-plugin-builder` PowerShell module.
+- Uses this repository as the `--project-dir`.
+- Uses `C:\Users\<YourUser>\OpenplanetNext\Plugins` as the OpenPlanet plugins folder.
+- Rebuilds the `EditorRouteDev` plugin folder with preprocessed files for local testing.
 
-   ```sh
-   cd path/to/your/cloned/repository
-   ```
+### Build Release
 
-2. **Verify `info.toml`**:
-   Ensure the `info.toml` file exists in the root directory. The `pluginbuilder.exe` requires the working directory to be the root directory of the repository.
+```powershell
+.\BuildRelease.ps1
+```
 
-3. **Run the Debug Command**:
-   Use the `pluginbuilder.exe` with the `debug` command. You need to specify the path where the OpenPlanet plugins are located.
+This script:
+- Resolves PluginBuilder through the shared `tm-plugin-builder` PowerShell module.
+- Runs the standalone builder in release mode for this repository.
+- Creates the packaged `.op` archive in `archive/<version>/`.
 
-   ```sh
-   pluginbuilder.exe debug C:/Users/YourUsername/OpenplanetNext/Plugins
-   ```
+### Manual Equivalent Commands
 
-   Replace `C:/Users/YourUsername/OpenplanetNext/Plugins` with the actual path to your OpenPlanet plugins directory.
+If you want to bypass the helper scripts and run the builder directly after obtaining a local build:
 
-4. **Checks Performed by the Debug Command**:
-   - Verifies that the current working directory contains an `info.toml` file with the `[meta]` section and `name = "Editor Route"`.
-   - Ensures that the working directory is not the same as the specified OpenPlanet plugins path.
-
-5. **Expected Behavior**:
-   - Checks if the target directory  `C:/Users/YourUsername/OpenplanetNext/Plugins/EditorRouteDev` directory exists and **deletes it** if it exists. 
-   - Copies whitelisted files and folders (`src`, `info.toml`, `LICENSE`, `Readme.md`) to the target directory.
-   - Runs the `mcpp` C-Preprocessor on the copied `src` folder, updating the files as necessary for the debug environment.
+```powershell
+tm-plugin-builder/build/Release/bin/PluginBuilder.exe --command debug --project-dir . --plugins-path C:/Users/YourUsername/OpenplanetNext/Plugins
+tm-plugin-builder/build/Release/bin/PluginBuilder.exe --command release --project-dir .
+```
 
 #### `//#require` Comment
 

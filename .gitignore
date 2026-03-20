@@ -1,2 +1,24 @@
-*.zip
+# Ignore everything by default, then explicitly allow the files and folders
+# that belong to this repository.
+/*
+
+/.idea/
+!/.gitattributes
+!/.gitignore
+!/.gitmodules
+!/BuildDebug.ps1
+!/BuildRelease.ps1
+!/LICENSE
+!/Readme.md
+!/info.toml
+!/plugin-builder.toml
+!/src/
+!/src/**
+!/tm-plugin-builder
+!/tools/
+!/tools/mcpp-2.7.2/
+!/tools/mcpp-2.7.2/**
+
+# Keep generated release artifacts ignored.
 *.op
+*.zip
