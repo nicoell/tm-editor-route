@@ -16,9 +16,9 @@ namespace Fonts
 
     void Load()
     {
-        Private::NVG[Fonts::Type::DroidSans] = nvg::LoadFont("DroidSans.ttf", true);
-        Private::NVG[Fonts::Type::DroidSansMono] = nvg::LoadFont("DroidSansMono.ttf", true);
-        Private::NVG[Fonts::Type::DroidSansBold] = nvg::LoadFont("DroidSans-Bold.ttf", true);
+        Private::NVG[Fonts::Type::DroidSans] = nvg::LoadFont("DroidSans.ttf");
+        Private::NVG[Fonts::Type::DroidSansMono] = nvg::LoadFont("DroidSansMono.ttf");
+        Private::NVG[Fonts::Type::DroidSansBold] = nvg::LoadFont("DroidSans-Bold.ttf");
 
         @Private::UI[Fonts::Type::DroidSans] = null; // Unused, activate if needed: UI::LoadFont("DroidSans-Bold.ttf", 16.f);
         @Private::UI[Fonts::Type::DroidSansMono] = null; // Unused, activate if needed: UI::LoadFont("DroidSans-Bold.ttf", 16.f);

@@ -172,6 +172,10 @@ class FMetaSetting
 	[Setting category=_category name=_name description=_description min=_minValue max=_maxValue color] \
 	_type _settingName = _defaultValue;
 
+#define DEFINE_SETTING_VAR_COLOR(_category, _name, _description, _type, _settingName, _defaultValue, _minValue, _maxValue) \
+	[Setting category=_category name=_name description=_description color] \
+	_type _settingName = _defaultValue;
+
 #define DEFINE_SETTING_VAR_MULTILINE(_category, _name, _description, _type, _settingName, _defaultValue) \
 	[Setting category=_category name=_name description=_description multiline] \
 	_type _settingName = _defaultValue;
@@ -196,6 +200,10 @@ class FMetaSetting
 	DEFINE_SETTING_VAR_MIN_MAX_COLOR(category, name, description, type, settingName, defaultValue, minValue, maxValue) \
 	FMetaSetting settingMeta_##settingName = FMetaSetting(TOSTRING(settingName), defaultValue, minValue, maxValue, false, true);
 
+#define DEFINE_SETTING_COLOR(category, name, description, type, settingName, defaultValue, minValue, maxValue) \
+	DEFINE_SETTING_VAR_COLOR(category, name, description, type, settingName, defaultValue, minValue, maxValue) \
+	FMetaSetting settingMeta_##settingName = FMetaSetting(TOSTRING(settingName), defaultValue, minValue, maxValue, false, true);
+
 #define DEFINE_SETTING_MULTILINE(category, name, description, type, settingName, defaultValue) \
 	DEFINE_SETTING_VAR_MULTILINE(category, name, description, type, settingName, defaultValue) \
 	FMetaSetting settingMeta_##settingName = FMetaSetting(TOSTRING(settingName), defaultValue, -1, true, false);
@@ -212,14 +220,14 @@ DEFINE_SETTING("Display", "Spectrum Palette", "Changes the colors of Spectrum us
 
 DEFINE_SETTING("Display", "Show Selected Only", "Show only the selected Editor Route.", bool, Setting_RenderSelectedOnly, false)
 
-DEFINE_SETTING_WITH_MIN_MAX_COLOR("Display", "Route Color", "Line-Color unselected Editor Routes.", vec3, Setting_RouteColor, vec3(0.9, 0.9, 0.9), 0.0, 1.0)
-DEFINE_SETTING_WITH_MIN_MAX_COLOR("Display", "Selected Route Color", "Line-Color selected Editor Routes.", vec3, Setting_SelectedRouteColor, vec3(0.2, 1, 0.3), 0.0, 1.0)
+DEFINE_SETTING_COLOR("Display", "Route Color", "Line-Color unselected Editor Routes.", vec3, Setting_RouteColor, vec3(0.9, 0.9, 0.9), 0.0, 1.0)
+DEFINE_SETTING_COLOR("Display", "Selected Route Color", "Line-Color selected Editor Routes.", vec3, Setting_SelectedRouteColor, vec3(0.2, 1, 0.3), 0.0, 1.0)
 DEFINE_SETTING_WITH_MIN_MAX_DRAG("Display", "Route line width", "Width of the route line.", float, Setting_RouteLineWidth, 1.0, 1.0, 10.0)
 
 DEFINE_SETTING_WITH_MIN_MAX("Display", "Elapsed Route Opacity", "Line-Color Opacity before the current time.", float, Setting_ElapsedRouteOpacityModifier, 0.25, 0.0, 1.0)
 
 DEFINE_SETTING("Display", "Show Car Box", "Show the Car box..", bool, Setting_RenderCarBox, true)
-DEFINE_SETTING_WITH_MIN_MAX_COLOR("Display", "Car Box color", "Color of the car box.", vec4, Setting_CarBoxColor, vec4(0.9f, 0.3f, 0.7f, 0.8), 0.0, 1.0)
+DEFINE_SETTING_COLOR("Display", "Car Box color", "Color of the car box.", vec4, Setting_CarBoxColor, vec4(0.9f, 0.3f, 0.7f, 0.8), 0.0, 1.0)
 DEFINE_SETTING_WITH_MIN_MAX_DRAG("Display", "Box line width", "Width of the box line.", float, Setting_BoxWidth, 1.0, 1.0, 10.0)
 DEFINE_SETTING_WITH_MIN_MAX_DRAG("Display", "Event scale", "Scale of the event.", float, Setting_EventScale, 1.0f, 0.4, 2.0)
 
