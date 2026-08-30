@@ -259,7 +259,7 @@ namespace Samples
 		class FPropInt32 : FPropVariant
 		{
 			int32 Val;
-			FPropInt32(int32 &in val) { Val = val; }
+			FPropInt32(int32 val) { Val = val; }
 			int32 opImplConv() const override { return Val; }
 			int64 opImplConv() const override { return Val; }
 			string opImplConv() const override { return "" + Val; }
@@ -268,7 +268,7 @@ namespace Samples
 		class FPropUInt32 : FPropVariant
 		{
 			uint32 Val;
-			FPropUInt32(int32 &in val) { Val = val; }
+			FPropUInt32(uint32 val) { Val = val; }
 			uint32 opImplConv() const override { return Val; }
 			uint64 opImplConv() const override { return Val; }
 			string opImplConv() const override { return "" + Val; }
@@ -286,7 +286,7 @@ namespace Samples
 			FPropAny(vec3 &in val) { @Prop = FPropVec3(val); }
 			FPropAny(vec4 &in val) { @Prop = FPropVec4(val); }
 			FPropAny(quat &in val) { @Prop = FPropQuat(val); }
-			FPropAny(int32 &in val) { @Prop = FPropInt32(val); }
+			FPropAny(int32 val) { @Prop = FPropInt32(val); }
 			FPropAny(uint32 &in val) { @Prop = FPropUInt32(val); }
 			float opImplConv() const { return Prop; }
 			double opImplConv() const { return Prop; }
