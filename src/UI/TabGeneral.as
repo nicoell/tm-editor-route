@@ -35,7 +35,7 @@ namespace EditorRouteUI
 				if (fmt.Length <= 0) { return GetSample().Prop[PropType]; }
 				return GetSample().Prop[PropType].Format(fmt);
 			}
-			string GetValueFormat() { return ""; }
+			string GetValueFormat() const { return ""; }
 			Samples::FSampleData@ GetSample() const { return Ctx::Route.CurrentSample; }
 		}
 
@@ -74,7 +74,7 @@ namespace EditorRouteUI
 			FMaxSpeedItem() { PropType = Samples::EPropType::Speed; }
 			string GetName() const override { return "Max " + FSamplePropertyItemBase::GetName(); }
 			Samples::FSampleData@ GetSample() const override { return Ctx::Route.SampleDataArray[Ctx::Route.MaxMagnitudeIndex]; }
-			string GetValueFormat() override { return "%.2f km/h"; }
+			string GetValueFormat() const override { return "%.2f km/h"; }
 			string GetActionName() const override { return Strings::GotoTime; }
 			void RunAction() const override 
 			{
@@ -85,7 +85,7 @@ namespace EditorRouteUI
 		class FCurrentSpeedItem : FSamplePropertyItemBase
 		{
 			FCurrentSpeedItem() { PropType = Samples::EPropType::Speed; }
-			string GetValueFormat() override { return "%.2f km/h"; }
+			string GetValueFormat() const override { return "%.2f km/h"; }
 		}
 		// ---------------------------------------------------------------
 		// "Altitude"
@@ -95,7 +95,7 @@ namespace EditorRouteUI
 			FMaxAltitudeItem() { PropType = Samples::EPropType::Altitude; }
 			string GetName() const override { return "Max " + FSamplePropertyItemBase::GetName(); }
 			Samples::FSampleData@ GetSample() const override { return Ctx::Route.SampleDataArray[Ctx::Route.MaxAltitudeIndex]; }
-			string GetValueFormat() override { return "%.2f m"; }
+			string GetValueFormat() const override { return "%.2f m"; }
 			string GetTooltip() const override { return "Position z-Coordinate"; }
 			string GetActionName() const override { return Strings::GotoTime; }
 			void RunAction() const override 
@@ -108,7 +108,7 @@ namespace EditorRouteUI
 		class FCurrentAltitudeItem : FSamplePropertyItemBase
 		{
 			FCurrentAltitudeItem() { PropType = Samples::EPropType::Altitude; }
-			string GetValueFormat() override { return "%.2f m"; }
+			string GetValueFormat() const override { return "%.2f m"; }
 			string GetTooltip() const override { return "Position z-Coordinate"; }
 		}
 		// ---------------------------------------------------------------
