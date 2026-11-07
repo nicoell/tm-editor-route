@@ -338,7 +338,7 @@ namespace Route
 			return LerpSampleByTime(RUtils::Lerp(GetMinTime(), GetMaxTime(), t));
 		}
 
-		uint32 BinarySearchSamplesByTime(const int32 time, uint32 &out nextBestIdx, float &out ratio)
+		uint32 BinarySearchSamplesByTime(const int32 time, uint32 &out nextBestIdx, float &out ratio) const
 		{
 			ratio = 0.;
 			nextBestIdx = 0;
